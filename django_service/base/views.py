@@ -7,8 +7,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
-from rest_framework_jwt.exceptions import InvalidToken
-from rest_framework_jwt.utils import jwt_decode_handler
+from rest_framework_simplejwt.tokens import UntypedToken
 
 class Home(APIView):
     authentication_classes = [JWTAuthentication]
@@ -27,16 +26,17 @@ class TokenValidationView(APIView):
     permission_classes = []
 
     def post(self, request):
+        
         token = request.data.get('token', '')
+        
         if not token:
             return Response({'detail': 'Token is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Decode the JWT token
-            payload = jwt_decode_handler(token)
-            return Response({'valid': True, 'payload': payload}, status=status.HTTP_200_OK)
-        except InvalidToken:
-            return Response({'valid': False, 'detail': 'Invalid token.'}, status=status.HTTP_400_BAD_REQUEST)
+            payload = UntypedToken(token)
+            print(str(payload))
+            return Response({'valid': True, 'payload': str(payload)}, status=status.HTTP_200_OK)
+
         except Exception as e:
             return Response({'valid': False, 'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 

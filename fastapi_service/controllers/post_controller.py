@@ -5,60 +5,48 @@ from psycopg2 import DatabaseError, OperationalError, IntegrityError, InterfaceE
 
 from controllers.jwt_security import JWTSecurity
 
+import grpc
+import books_pb2
+import books_pb2_grpc as books_pb2_grpc
+
+import pika
+import json
+
 class PostController(BaseController):
     
     def __init__(self) -> None:
         super().__init__()
+        
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        self.channel = self.connection.channel()
+        self.channel.queue_declare(queue='book_queue')
         
     async def create_book(self, book_name: str, book_author: str, token: str) -> JSONResponse:
         
         is_valid_token = await JWTSecurity.validate_jwt(token)
         
         if is_valid_token:
-        
+            
             try:
             
-                connection = self.db.get_connection()
-                cursor = connection.cursor()
+                message = f"Posting Book|{book_name}|{book_author}"
                 
-                query = '''
-                INSERT INTO base_book
-                VALUES book_name, author, uploaded_at (%s, %s, %s)
-                '''
+                self.channel.basic_publish(exchange='', routing_key='book_queue', body=message)
                 
-                cursor.execute(query, (book_name, book_author, datetime.now()))
-                
-                connection.commit()
+                self.logger.info('task queued successfully')
                 
                 status = 'SUCCESS'
-            
-            except (DatabaseError, OperationalError, IntegrityError, InterfaceError, ProgrammingError, DataError) as e:
                 
-                status = 'FAILED'
-                
-                if connection:
-                
-                    connection.rollback()
-                
-                self.logger.fatal(f'Database error occured: {e}. Full traceback below', exc_info=True)
-        
             except Exception as e:
                 
                 status = 'FAILED'
                 
-                if connection:
-                    
-                    connection.rollback()
-                    
-                self.logger.error("An unexpected error occurred: %s", str(e), exc_info=True)
+                self.logger.fatal('Unexpected error occured', exc_info=True)
                 
             finally:
                 
-                cursor.close()
-                self.db.release_connection(connection)
-                
                 response = {'STATUS':status}
-                    
+                
                 return JSONResponse(response)
         
         else:

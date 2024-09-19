@@ -8,6 +8,8 @@ import grpc
 import books_pb2
 import books_pb2_grpc as books_pb2_grpc
 
+import pika
+
 def get_grpc_stub():
     channel = grpc.insecure_channel('localhost:50051')
     return books_pb2_grpc.BookServiceStub(channel)
@@ -19,6 +21,10 @@ class GetController(BaseController):
         
         self.grpc_stub = get_grpc_stub()
         
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        self.channel = self.connection.channel()
+        self.channel.queue_declare(queue='book_queue')
+        
     async def get_all_books(self, token: str) -> JSONResponse:
         
         try:
@@ -28,6 +34,8 @@ class GetController(BaseController):
             if is_valid_token:
                 
                 request = books_pb2.EmptyRequest()
+                
+                self.channel.basic_publish(exchange='', routing_key='book_queue', body='Fetching all books')
             
                 books = self.grpc_stub.GetAllBooks(request)
                     
@@ -60,52 +68,26 @@ class GetController(BaseController):
         
             try:
                 
-                connection = self.db.get_connection()
-                cursor = connection.cursor()
+                request = books_pb2.EmptyRequest()
                 
-                query = '''
-                SELECT *
-                FROM base_book
-                WHERE id = %s
-                '''
-                
-                cursor.execute(query, str(book_id))
-                book_details = cursor.fetchone()
-                
-                connection.commit()
-                
+                self.channel.basic_publish(exchange='', routing_key='book_queue', body='Fetching Book by Id')
+            
+                book = self.grpc_stub.GetBookById(request)
+                    
                 status = 'SUCCESS'
                 
-            except (DatabaseError, OperationalError, IntegrityError, InterfaceError, ProgrammingError, DataError) as e:
-                
-                status = 'FAILED'
-                
-                if connection:
-                
-                    connection.rollback()
-                
-                self.logger.fatal(f'Database error occured: {e}. Full traceback below', exc_info=True)
-        
             except Exception as e:
                 
                 status = 'FAILED'
                 
-                if connection:
-                    
-                    connection.rollback()
-                    
-                self.logger.error("An unexpected error occurred: %s", str(e), exc_info=True)
-                
+                self.logger.fatal('And exception occured', exc_info=True)
+            
             finally:
-                
-                cursor.close()
-                self.db.release_connection(connection)
                 
                 response = {'STATUS':status}
                 
                 if status == 'SUCCESS':
-                    
-                    response['BOOK_DETAILS'] = book_details
+                    response['BOOK'] = book
                     
                 return JSONResponse(response)
             

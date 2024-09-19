@@ -7,6 +7,9 @@ import "google/protobuf/timestamp.proto";
 service BookService {
   rpc GetBookById (BookRequest) returns (BookResponse);
   rpc GetAllBooks (EmptyRequest) returns (BooksResponse);
+  rpc PostBook (PostBookRequest) returns (BookResponse);
+  rpc DeleteBook (DeleteBookRequest) returns (BookResponse);
+  rpc UpdateBook (UpdateBookRequest) returns (BookResponse);
 }
 
 message BookRequest {
@@ -19,9 +22,24 @@ message BookResponse {
   int32 id = 1;
   string book_name = 2;
   string author = 3;
-  google.protobuf.Timestamp uploaded_at = 6;
+  google.protobuf.Timestamp uploaded_at = 4;
 }
 
 message BooksResponse {
   repeated BookResponse books = 1;
+}
+
+message PostBookRequest {
+  string book_name = 1; 
+  string book_author = 2; 
+}
+
+message DeleteBookRequest {
+  int32 book_id = 1;
+}
+
+message UpdateBookRequest {
+  int32 book_id = 1;
+  string book_name = 2;
+  string author = 3;
 }

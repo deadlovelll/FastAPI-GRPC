@@ -4,61 +4,36 @@ from fastapi.responses import JSONResponse
 
 from controllers.jwt_security import JWTSecurity
 
+import pika
 
 class DeleteController(BaseController):
     
     def __init__(self) -> None:
         super().__init__()
         
-    
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        self.channel = self.connection.channel()
+        self.channel.queue_declare(queue='book_queue')
+        
     async def delete_book(self, book_id:int, token: str) -> JSONResponse:
         
         is_valid_token = await JWTSecurity.validate_jwt(token)
         
         if is_valid_token:
-        
-            try:
             
-                connection = self.db.get_connection()
-                cursor = connection.cursor()
-                
-                query = '''
-                DELETE FROM base_book
-                WHERE id = %s
-                '''
-                
-                cursor.execute(query, book_id)
-                
-                connection.commit()
-                
-            except (DatabaseError, OperationalError, IntegrityError, InterfaceError, ProgrammingError, DataError) as e:
-                
-                status = 'FAILED'
-                
-                if connection:
-                
-                    connection.rollback()
-                
-                self.logger.fatal(f'Database error occured: {e}. Full traceback below', exc_info=True)
+            try:
         
-            except Exception as e:
+                message = f"Deleting Book|{book_id}"
                 
-                status = 'FAILED'
+                self.channel.basic_publish(exchange='', routing_key='book_queue', body=message)
                 
-                if connection:
-                    
-                    connection.rollback()
-                    
-                self.logger.error("An unexpected error occurred: %s", str(e), exc_info=True)
+                self.logger.info('task queued successfully')
                 
-            finally:
+                status = 'SUCCESS'
                 
-                cursor.close()
-                self.db.release_connection(connection)
+            except Exception:
                 
-                response = {'STATUS':status}
-                    
-                return JSONResponse(response)
+                pass
             
         else:
             

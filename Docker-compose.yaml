@@ -1,0 +1,101 @@
+version: 'latest'
+
+services:
+  django:
+    build: 
+      context: .
+      dockerfile: ./django_service/dockerfile
+    container_name: django_service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./django_service:/app
+    depends_on:
+      - db
+
+  fastapi:
+    build:
+      context: .
+      dockerfile: ./fastapi_service/dockerfile
+    container_name: fastapi_service
+    ports:
+      - "8100:8100"
+    volumes:
+      - ./fastapi_service:/app
+    depends_on:
+      - grpc
+      - db
+      - elasticsearch  
+      - kibana         
+
+  grpc:
+    build:
+      context: .
+      dockerfile: ./grpc_service/dockerfile
+    container_name: grpc_service
+    ports:
+      - "50051:50051"
+    volumes:
+      - ./grpc_service:/app
+    depends_on:
+      - db
+      - elasticsearch  
+      - kibana         
+
+  db:
+    image: postgres:14
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: test_task_database
+      POSTGRES_USER: test_task
+      POSTGRES_PASSWORD: Lovell32bd
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.9.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - elk
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.9.0
+    container_name: logstash
+    volumes:
+      - ./logstash/config:/usr/share/logstash/config
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+    ports:
+      - "5044:5044"
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.9.0
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+
+volumes:
+  postgres_data:
+  es_data:
+
+networks:
+  elk:
+    driver: bridge

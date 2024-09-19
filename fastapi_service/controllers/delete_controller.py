@@ -31,10 +31,12 @@ class DeleteController(BaseController):
                 
                 status = 'SUCCESS'
                 
-            except Exception:
+            finally:
                 
-                pass
-            
+                response = {'STATUS':status}
+                
+                return JSONResponse(response)
+        
         else:
             
             return JSONResponse({'STATUS':'FAILED'})

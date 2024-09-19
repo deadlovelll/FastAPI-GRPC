@@ -5,8 +5,8 @@ from fastapi.responses import JSONResponse
 from controllers.jwt_security import JWTSecurity
 
 import grpc
-import books_pb2
-import books_pb2_grpc as books_pb2_grpc
+import fastapi_service.grpc_service.books_pb2 as books_pb2
+import fastapi_service.grpc_service.books_pb2_grpc as books_pb2_grpc
 
 import pika
 

@@ -12,6 +12,7 @@ services:
       - ./django_service:/app
     depends_on:
       - db
+      - rabbitmq  
 
   fastapi:
     build:
@@ -26,7 +27,8 @@ services:
       - grpc
       - db
       - elasticsearch  
-      - kibana         
+      - kibana        
+      - rabbitmq     
 
   grpc:
     build:
@@ -39,8 +41,9 @@ services:
       - ./grpc_service:/app
     depends_on:
       - db
-      - elasticsearch  
+      - elasticsearch 
       - kibana         
+      - rabbitmq       
 
   db:
     image: postgres:14
@@ -53,6 +56,20 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"  
+      - "15672:15672"  
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - elk
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.9.0
@@ -95,7 +112,9 @@ services:
 volumes:
   postgres_data:
   es_data:
+  rabbitmq_data:
 
 networks:
   elk:
     driver: bridge
+

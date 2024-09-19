@@ -1,5 +1,5 @@
 from modules.base_controller import BaseController
-from fastapi.response import JSONResponse
+from fastapi.responses import JSONResponse
 
 class PatchController(BaseController):
     

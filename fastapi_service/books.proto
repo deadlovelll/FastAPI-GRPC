@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package book;
+
+import "google/protobuf/timestamp.proto";
+
+service BookService {
+  rpc GetBookById (BookRequest) returns (BookResponse);
+  rpc GetAllBooks (EmptyRequest) returns (BooksResponse);
+}
+
+message BookRequest {
+  int32 book_id = 1;
+}
+
+message EmptyRequest {}
+
+message BookResponse {
+  int32 id = 1;
+  string book_name = 2;
+  string author = 3;
+  google.protobuf.Timestamp uploaded_at = 6;
+}
+
+message BooksResponse {
+  repeated BookResponse books = 1;
+}

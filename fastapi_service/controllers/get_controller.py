@@ -1,75 +1,56 @@
-from ..modules.base_controller import BaseController
+from modules.base_controller import BaseController
 from psycopg2 import DatabaseError, OperationalError, IntegrityError, InterfaceError, ProgrammingError, DataError
 from fastapi.responses import JSONResponse
 
-from jwt_security import JWTSecurity
+from controllers.jwt_security import JWTSecurity
 
+import grpc
+import books_pb2
+import books_pb2_grpc as books_pb2_grpc
+
+def get_grpc_stub():
+    channel = grpc.insecure_channel('localhost:50051')
+    return books_pb2_grpc.BookServiceStub(channel)
 
 class GetController(BaseController):
     
     def __init__(self) -> None:
         super().__init__()
         
+        self.grpc_stub = get_grpc_stub()
+        
     async def get_all_books(self, token: str) -> JSONResponse:
         
-        is_valid_token = await JWTSecurity.validate_jwt(token)
+        try:
         
-        if is_valid_token:
-        
-            try:
+            is_valid_token = await JWTSecurity.validate_jwt(token)
             
-                connection = self.db.get_connection()
-                cursor = connection.cursor()
+            if is_valid_token:
                 
-                query = '''
-                SELECT *
-                FROM base_book
-                '''
-                
-                cursor.execute(query)
-                
-                books = cursor.fetchall()
-                
-                connection.commit()
-                
+                request = books_pb2.EmptyRequest()
+            
+                books = self.grpc_stub.GetAllBooks(request)
+                    
                 status = 'SUCCESS'
                 
-            except (DatabaseError, OperationalError, IntegrityError, InterfaceError, ProgrammingError, DataError) as e:
+            else:
                 
-                status = 'FAILED'
-                
-                if connection:
-                
-                    connection.rollback()
-                
-                self.logger.fatal(f'Database error occured: {e}. Full traceback below', exc_info=True)
+                return JSONResponse({'STATUS':'FAILED'})
+            
+        except Exception as e:
+            
+            status = 'FAILED'
+            
+            self.logger.fatal('And exception occured', exc_info=True)
         
-            except Exception as e:
-                
-                status = 'FAILED'
-                
-                if connection:
-                    
-                    connection.rollback()
-                    
-                self.logger.error("An unexpected error occurred: %s", str(e), exc_info=True)
-                
-            finally:
-                
-                cursor.close()
-                self.db.release_connection(connection)
-                
-                response = {'STATUS':status}
-                
-                if status == 'SUCCESS':
-                    
-                    response['BOOKS'] = books
-                    
-                return JSONResponse(response)
+        finally:
             
-        else:
+            response = {'STATUS':status}
             
-            return JSONResponse({'STATUS':'FAILED'})
+            if status == 'SUCCESS':
+                response['BOOKS'] = books
+                
+            return JSONResponse(response)
     
     async def get_book_by_id(self, book_id: int, token: str) -> JSONResponse:
         

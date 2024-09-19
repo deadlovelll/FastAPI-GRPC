@@ -1,8 +1,8 @@
-from ..modules.base_controller import BaseController
+from modules.base_controller import BaseController
 from psycopg2 import DatabaseError, OperationalError, IntegrityError, InterfaceError, ProgrammingError, DataError
 from fastapi.responses import JSONResponse
 
-from jwt_security import JWTSecurity
+from controllers.jwt_security import JWTSecurity
 
 
 class DeleteController(BaseController):

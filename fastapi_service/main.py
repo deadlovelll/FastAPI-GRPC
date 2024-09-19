@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 import uvicorn
+import grpc
 
 from modules.database_controller import DatabasePoolController
 from modules.database import Database

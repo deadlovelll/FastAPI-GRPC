@@ -1,7 +1,7 @@
 import pytest
 import asyncio
 from unittest.mock import AsyncMock, patch
-from get_controller import GetController
+from ..get_controller import GetController
 
 GetBookController = GetController()
 

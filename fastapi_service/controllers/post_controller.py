@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from datetime import datetime
 from psycopg2 import DatabaseError, OperationalError, IntegrityError, InterfaceError, ProgrammingError, DataError
 
-from jwt_security import JWTSecurity
+from controllers.jwt_security import JWTSecurity
 
 class PostController(BaseController):
     

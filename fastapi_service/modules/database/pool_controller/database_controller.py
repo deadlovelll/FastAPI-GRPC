@@ -1,4 +1,4 @@
-from .database import Database
+from ..model.database import Database
 import logging
 
 class DatabasePoolController:

@@ -1,0 +1,32 @@
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore all migrations (including subdirectories)
+migrations/
+*/migrations/
+*/migrations/*
+
+# Ignore all __init__.py files
+**/__init__.py
+
+# Ignore environment variables
+.env
+
+# Ignore virtual environments
+venv/
+.Venv/
+.venv/
+
+# Ignore compiled dependencies
+*.egg-info/
+*.eggs/
+dist/
+build/
+
+# Ignore editor and OS-specific files
+*.swp
+.DS_Store
+Thumbs.db

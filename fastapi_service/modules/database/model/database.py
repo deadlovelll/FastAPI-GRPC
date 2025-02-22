@@ -2,12 +2,6 @@ import psycopg2
 from psycopg2 import pool
 from typing import Optional
 import os 
-from dotenv import load_dotenv
-
-load_dotenv()
-
-print(os.getenv('DB_USER'))
-print(os.getenv('DB_USER'))
 
 class Database:
     instance = None

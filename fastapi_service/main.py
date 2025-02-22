@@ -3,9 +3,9 @@ from fastapi.responses import JSONResponse
 import uvicorn
 import grpc
 
-from modules.database_controller import DatabasePoolController
-from modules.database import Database
-from modules.logger import LoggerModel
+from fastapi_service.modules.database.pool_controller.database_controller import DatabasePoolController
+from fastapi_service.modules.database.model.database import Database
+from fastapi_service.modules.logger.logger import LoggerModel
 from modules.base_controller import BaseController
 
 from controllers.get_controller import GetController

@@ -1,6 +1,7 @@
 import os
 import sys
 
+fr
 
 def main():
     os.environ['DJANGO_SETTINGS_MODULE'] = 'books_project.settings'

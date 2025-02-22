@@ -7,7 +7,7 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
-import grpc_service.grpc_server as grpc_server
+import grpc_service.grpc_server.grpc_server as grpc_server
 import grpc_service.books_pb2_grpc as books_pb2_grpc
 
 import grpc_service.books_pb2 as books_pb2

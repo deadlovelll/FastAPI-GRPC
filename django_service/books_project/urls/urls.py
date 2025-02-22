@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from base.views import Home, TokenValidationView
+from django_service.base.views.views import Home, TokenValidationView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [

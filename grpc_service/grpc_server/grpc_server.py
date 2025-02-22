@@ -1,20 +1,24 @@
-import os 
-import sys
-import grpc
-import grpc_service.books_pb2 as books_pb2
-import grpc_service.books_pb2_grpc as books_pb2_grpc
-import psycopg2
-
-from psycopg2 import DatabaseError, OperationalError, IntegrityError, InterfaceError, ProgrammingError, DataError
-from google.protobuf.timestamp_pb2 import Timestamp
 from datetime import datetime
 from concurrent import futures
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
+import grpc
+from google.protobuf.timestamp_pb2 import Timestamp
+
+from psycopg2 import (
+    DatabaseError,
+    OperationalError,
+    IntegrityError,
+    InterfaceError,
+    ProgrammingError,
+    DataError,
+)
+
+import grpc_service.books_pb2 as books_pb2
+import grpc_service.books_pb2_grpc as books_pb2_grpc
 
 from modules.base_controller import BaseController
-from modules.logger import LoggerModel
 from modules.database_controller import DatabasePoolController
+from modules.logger import LoggerModel
 
 Logger = LoggerModel()
 logger = Logger.logger_initialization()

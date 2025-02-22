@@ -8,11 +8,6 @@ from fastapi_service.modules.database.model.database import Database
 from fastapi_service.modules.logger.logger import LoggerModel
 from modules.base_controller import BaseController
 
-from controllers.get_controller import GetController
-from controllers.post_controller import PostController
-from controllers.delete_controller import DeleteController
-from controllers.patch_controller import PatchController
-
 from schemas.book.book import Book
 from schemas.book_response.book_response import BookResponse
 from schemas.books_response.books_response import BooksResponse

@@ -13,8 +13,8 @@ from psycopg2 import (
     DataError,
 )
 
-import grpc_service.books_pb2 as books_pb2
-import grpc_service.books_pb2_grpc as books_pb2_grpc
+import grpc_service.books_pb.books_pb2 as books_pb2
+import grpc_service.books_pb.books_pb2_grpc as books_pb2_grpc
 
 from modules.base_controller import BaseController
 from modules.database_controller import DatabasePoolController

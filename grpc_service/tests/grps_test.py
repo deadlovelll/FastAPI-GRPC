@@ -1,8 +1,8 @@
 import unittest
 from concurrent import futures
 import grpc
-import grpc_service.books_pb2 as books_pb2
-import grpc_service.books_pb2_grpc as books_pb2_grpc
+import grpc_service.books_pb.books_pb2 as books_pb2
+import grpc_service.books_pb.books_pb2_grpc as books_pb2_grpc
 import grpc_service.grpc_server.grpc_server as grpc_server
 
 class TestBookService(unittest.TestCase):

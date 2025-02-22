@@ -6,8 +6,8 @@ from psycopg2 import DatabaseError, OperationalError, IntegrityError, InterfaceE
 from controllers.jwt_security import JWTSecurity
 
 import grpc
-import grpc_service.books_pb2 as books_pb2
-import grpc_service.books_pb2_grpc as books_pb2_grpc
+import grpc_service.books_pb.books_pb2 as books_pb2
+import grpc_service.books_pb.books_pb2_grpc as books_pb2_grpc
 
 import pika
 import json

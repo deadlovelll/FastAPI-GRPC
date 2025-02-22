@@ -1,9 +1,11 @@
+import os
+
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = 'django-insecure-d+fti2j8pynu25rzh^dp#erqih-m5m_ftzi6ot8fdy42bg=%*j'
-DEBUG = True
-ALLOWED_HOSTS = []
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+DEBUG = os.getenv('DJANGO_DEBUG')
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -26,7 +28,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'books_project.urls'
+ROOT_URLCONF = 'books_project.urls.urls'
 
 TEMPLATES = [
     {
@@ -58,15 +60,15 @@ WSGI_APPLICATION = 'books_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': os.getenv('DATABSE_ENGINE'),
         'OPTIONS': {
-            'options': '-c search_path=public'
+            'options': os.getenv('DATABSE_OPTIONS')
         },
-        'NAME': 'test_task_database',
-        'USER': 'test_task',
-        'PASSWORD': 'Lovell32bd',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.getenv('DATABSE_NAME'),
+        'USER': os.getenv('DATABSE_USER'),
+        'PASSWORD': os.getenv('DATABSE_PASSWORD'),
+        'HOST': os.getenv('DATABSE_HOST'),
+        'PORT': os.getenv('DATABSE_PORT'),
     },
 }
 

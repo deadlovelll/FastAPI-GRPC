@@ -7,6 +7,7 @@ from schemas.books_response.books_response import BooksResponse
 from controllers.book_controller.book_controller import BookController
 
 class BookEndpoints:
+    
     """
     Class-based endpoints for book operations.
     

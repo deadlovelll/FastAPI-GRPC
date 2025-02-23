@@ -1,20 +1,30 @@
-import logging
 from fastapi.responses import JSONResponse  
-import books_pb2
 
 from controllers.rabbitmq_controller.rabbitmq_controller import RabbitMQController
+from grpc_service.books_pb import books_pb2
+
+from fastapi_service.modules.logger.logger import LoggerModule
 
 class BookController:
+    
+    """
+    Controller for managing book operations.
+
+    This class provides methods for interacting with books via gRPC and 
+    queues operations for book creation, deletion, and editing via RabbitMQ.
+    """
     
     def __init__ (
         self, 
         grpc_stub, 
-        logger: logging.Logger,
+        logger: LoggerModule = LoggerModule(),
     ) -> None:
         
         """
-        Initialize the BookController with a gRPC stub and logger.
-        Sets up a connection and channel to the RabbitMQ queue.
+        Initializes the BookController.
+
+        :param grpc_stub: The gRPC stub used for communicating with the book service.
+        :param logger: The logger instance for logging messages and errors.
         """
         
         self.grpc_stub = grpc_stub
@@ -26,7 +36,11 @@ class BookController:
     ) -> JSONResponse:
         
         """
-        Retrieve all books after validating the token.
+        Retrieves all books from the book service.
+
+        Publishes a message to RabbitMQ indicating that book retrieval is being performed.
+
+        :return: JSONResponse containing a list of all books or an error message.
         """
         
         try:
@@ -64,7 +78,12 @@ class BookController:
     ) -> JSONResponse:
         
         """
-        Retrieve a specific book by ID after token validation.
+        Retrieves a book by its ID.
+
+        Publishes a message to RabbitMQ indicating that a book retrieval is requested.
+
+        :param book_id: The ID of the book to retrieve.
+        :return: JSONResponse containing the book details or an error message.
         """
         
         try:
@@ -105,7 +124,14 @@ class BookController:
     ) -> JSONResponse:
         
         """
-        Queue an edit operation for a book.
+        Queues an edit operation for a book.
+
+        Publishes a message to RabbitMQ with the book edit request.
+
+        :param book_id: The ID of the book to edit.
+        :param book_name: The new name of the book.
+        :param author: The new author of the book.
+        :return: JSONResponse confirming that the edit request has been queued.
         """
         
         try:
@@ -146,7 +172,12 @@ class BookController:
     ) -> JSONResponse:
         
         """
-        Queue a delete operation for a book.
+        Queues a delete operation for a book.
+
+        Publishes a message to RabbitMQ with the book deletion request.
+
+        :param book_id: The ID of the book to delete.
+        :return: JSONResponse confirming that the delete request has been queued.
         """
         
         try:
@@ -188,7 +219,13 @@ class BookController:
     ) -> JSONResponse:
         
         """
-        Queue a create operation for a new book.
+        Queues a create operation for a new book.
+
+        Publishes a message to RabbitMQ with the book creation request.
+
+        :param book_name: The name of the new book.
+        :param book_author: The author of the new book.
+        :return: JSONResponse confirming that the create request has been queued.
         """
         
         try:

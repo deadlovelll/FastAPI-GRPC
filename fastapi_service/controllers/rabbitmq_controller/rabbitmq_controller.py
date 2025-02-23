@@ -1,25 +1,37 @@
 import os
 
 import pika
-import logging
+
+from fastapi_service.modules.logger.logger import LoggerModule
 
 class RabbitMQController:
     
     """
     A simple client to manage RabbitMQ connections and message publishing.
+
+    This class provides methods to establish a connection to a RabbitMQ broker, 
+    declare a queue, publish messages, and gracefully close the connection.
     """
 
     def __init__ (
         self, 
         host: str = os.getenv('RABBITMQ_HOST'), 
         queue_name: str = os.getenv('RABBITMQ_QUEUE_NAME'),
+        logger: LoggerModule = LoggerModule(),
     ) -> None:
+        
+        """
+        Initializes the RabbitMQController.
+
+        :param host: The hostname of the RabbitMQ server. Defaults to the environment variable 'RABBITMQ_HOST'.
+        :param queue_name: The name of the queue to interact with. Defaults to the environment variable 'RABBITMQ_QUEUE_NAME'.
+        """
         
         self.host = host
         self.queue_name = queue_name
         self.connection = None
         self.channel = None
-        self.logger = logging.getLogger(__name__)
+        self.logger = logger
         self.connect()
 
     def connect (
@@ -27,7 +39,10 @@ class RabbitMQController:
     ) -> None:
         
         """
-        Establish a connection to RabbitMQ and declare the queue.
+        Establishes a connection to RabbitMQ and declares the queue.
+
+        This method attempts to connect to the RabbitMQ broker, open a communication channel, 
+        and declare the specified queue to ensure it exists before messages are sent or received.
         """
         
         try:
@@ -63,10 +78,12 @@ class RabbitMQController:
     ) -> None:
         
         """
-        Publish a message to the configured queue.
+        Publishes a message to the configured queue.
+
+        :param message: The message to be sent to the queue.
+        :param exchange: The exchange to publish to (default is the empty string for direct queue publishing).
         
-        :param message: The message to be sent.
-        :param exchange: The exchange to publish to (default is direct to the queue).
+        :raises Exception: If message publishing fails, an exception is logged and re-raised.
         """
         
         try:
@@ -97,7 +114,9 @@ class RabbitMQController:
     ) -> None:
         
         """
-        Close the connection to RabbitMQ.
+        Closes the connection to RabbitMQ.
+
+        Ensures that the connection is properly closed to release resources and avoid memory leaks.
         """
         
         if self.connection and not self.connection.is_closed:

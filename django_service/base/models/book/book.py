@@ -53,4 +53,6 @@ class Book(models.Model):
         return f"{self.book_name} by {self.author}"
 
     class Meta:
-        ordering = ['-uploaded_at']
+        ordering = [
+            '-uploaded_at',
+        ]

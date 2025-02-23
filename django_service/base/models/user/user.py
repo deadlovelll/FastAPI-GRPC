@@ -38,4 +38,6 @@ class User(models.Model):
         return self.username
 
     class Meta:
-        ordering = ['username']
+        ordering = [
+            'username',
+        ]

@@ -1,5 +1,5 @@
 from django.urls import path
-from django_service.base.views.views import TokenValidationView
+from django_service.base.views.views.views import TokenValidationView
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 

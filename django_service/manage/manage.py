@@ -1,7 +1,7 @@
 import os
 import sys
 
-fr
+from dotenv import load_dotenv
 
 def main():
     os.environ['DJANGO_SETTINGS_MODULE'] = 'books_project.settings'
@@ -17,4 +17,5 @@ def main():
 
 
 if __name__ == "__main__":
+    load_dotenv()
     main()

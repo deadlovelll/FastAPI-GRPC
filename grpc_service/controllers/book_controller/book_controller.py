@@ -6,22 +6,26 @@ import grpc_service.books_pb.books_pb2_grpc as books_pb2_grpc
 
 from datetime import datetime
 from google.protobuf.timestamp_pb2 import Timestamp
-from psycopg2 import DatabaseError, OperationalError, IntegrityError, InterfaceError, ProgrammingError, DataError
 
-class BookService(books_pb2_grpc.BookServiceServicer):
+from grpc_service.modules.database.controller.database_controller import DatabaseController
+from grpc_service.controllers.base_grpc_controller.base_grpc_controller import BaseGRPCController
+
+class BookService (
+    books_pb2_grpc.BookServiceServicer, 
+    BaseGRPCController,
+):
     
     def __init__ (
         self,
-        logger: LoggerModule = LoggerModule(),
+        database_controller: DatabaseController = DatabaseController(),
     ) -> None:
         
-        self.logger = logger
-        self.db = DBPool.get_db()
+        self.database_controller = database_controller
 
     def GetBookById (
         self, 
         request, 
-        context
+        context,
     ):
         
         """
@@ -41,27 +45,16 @@ class BookService(books_pb2_grpc.BookServiceServicer):
                                     or an empty BookResponse on failure.
         """
         
-        connection = self.db.get_connection()
-        
         try:
-            with connection.cursor() as cursor:
-                
-                self.logger.info("Database connection established successfully.")
-                
-                query = """
-                    SELECT *
-                    FROM base_book
-                    WHERE id = %s
-                """
-                cursor.execute (
-                    query, 
-                    (request.book_id,),
-                )
-                book = cursor.fetchone()
-                
-                self.logger.info("Book query executed successfully.")
-
-            connection.commit()
+            query = """
+                SELECT *
+                FROM base_book
+                WHERE id = %s
+            """
+            
+            book = self.database_controller.execute_get_query (
+                query
+            )
 
             if book:
                 
@@ -75,8 +68,6 @@ class BookService(books_pb2_grpc.BookServiceServicer):
                 ts = Timestamp()
                 ts.FromDatetime(datetime.utcnow())
                 response.uploaded_at.CopyFrom(ts)
-                
-                return response
             
             else:
                 
@@ -88,26 +79,9 @@ class BookService(books_pb2_grpc.BookServiceServicer):
                 response = books_pb2.BookResponse()
 
         except Exception as e:
-            
-            connection.rollback()
-            
-            if isinstance(e, self.db_exceptions):
-                self.logger.fatal("Database error occurred: %s", str(e), exc_info=True)
-                context.set_details(f"Database error: {e}")
-            else:
-                self.logger.error("An unexpected error occurred: %s", str(e), exc_info=True)
-                context.set_details(f"Unexpected error: {e}")
                 
             context.set_code(grpc.StatusCode.INTERNAL)
             response = books_pb2.BookResponse()
-
-        finally:
-            
-            self.db.release_connection(connection)
-            
-            self.logger.info (
-                "Database connection closed successfully."
-            )
 
         return response
         
@@ -117,20 +91,17 @@ class BookService(books_pb2_grpc.BookServiceServicer):
         cursor = None
         
         try:
-            connection = self.db.get_connection()
-            cursor = connection.cursor()
-            
-            self.logger.info('Db connection established successfully')
             
             query = '''
             SELECT *
             FROM base_book
             '''
             
-            cursor.execute(query)
+            self.database_controller.execute_get_query (
+                query
+            )
             
             books = cursor.fetchall()
-
             response = books_pb2.BooksResponse()
             
             for book in books:
@@ -147,225 +118,168 @@ class BookService(books_pb2_grpc.BookServiceServicer):
 
                 response.books.append(book_proto)
 
-        except (DatabaseError, OperationalError, IntegrityError, InterfaceError, ProgrammingError, DataError) as e:
-            
-            if connection:
-            
-                connection.rollback()
-            
-            self.logger.fatal(f'Database error occured: {e}. Full traceback below', exc_info=True)
-            
-            context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details(f'Database error: {e}')
-            
-            response = books_pb2.BookResponse()
-
         except Exception as e:
-            
-            if connection:
                 
-                connection.rollback()
-                
-            self.logger.error("An unexpected error occurred: %s", str(e), exc_info=True)
+            self.logger.error (
+                "An unexpected error occurred: %s", 
+                str(e), 
+                exc_info=True,
+            )
             
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details(f'Unexpected error: {e}')
             
             response = books_pb2.BookResponse()
-                
-        finally:
-                
-            cursor.close()
-            self.db.release_connection(connection)
             
-            self.logger.info('Db connection closed successfully')
-            
-            return response
+        return response
         
-    def PostBook(self, request, context):
-        
-        connection = None
-        cursor = None
+    def PostBook (
+        self, 
+        request, 
+        context,
+    ):
         
         try:
-            connection = self.db.get_connection()
-            cursor = connection.cursor()
-            
-            self.logger.info('Db connection established successfully')
-            
             query = '''
             INSERT INTO base_book
             (book_name, author, uploaded_at)
             VALUES (%s, %s, NOW());
             '''
             
-            cursor.execute(query, (request.book_name, request.book_author))
+            book_id = self.database_controller.execute_insert_query (
+                query=query,
+                params=(request.book_name, request.book_author)
+            )
             
-            self.logger.info('Insert query executed successfully.')
-
-            connection.commit()
-            
-            context.set_details('Inserted Successfully')
-            
-            response = books_pb2.BookResponse()
-
-        except (DatabaseError, OperationalError, IntegrityError, InterfaceError, ProgrammingError, DataError) as e:
-            
-            if connection:
-            
-                connection.rollback()
-            
-            self.logger.fatal(f'Database error occured: {e}. Full traceback below', exc_info=True)
-            
-            context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details(f'Database error: {e}')
-            
-            response = books_pb2.BookResponse()
+            if book_id:
+                context.set_details('Inserted Successfully')
+                response = books_pb2.BookResponse()
 
         except Exception as e:
             
-            if connection:
-                
-                connection.rollback()
-                
-            self.logger.error("An unexpected error occurred: %s", str(e), exc_info=True)
+            self.logger.error (
+                "An unexpected error occurred: %s", 
+                str(e), 
+                exc_info=True,
+            )
             
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details(f'Unexpected error: {e}')
-            
             response = books_pb2.BookResponse()
-                
-        finally:
-                
-            cursor.close()
-            self.db.release_connection(connection)
             
-            self.logger.info('Db connection closed successfully')
-            
-            return response
+        return response
         
-    def DeleteBook(self, request, context):
+    def DeleteBook (
+        self, 
+        request, 
+        context,
+    ):
         
         try:
-        
-            connection = self.db.get_connection()
-            cursor = connection.cursor()
-            
-            self.logger.info('Db connection established successfully')
-            
             query = '''
             DELETE FROM base_book
             WHERE id = %s
             '''
             
-            cursor.execute(query, str(request.book_id))
+            self.database_controller.execute_delete_query (
+                query,
+                params=(str(request.book_id),)
+            )
             
-            connection.commit()
-            
-            context.set_details('Inserted Successfully')
-            
-            response = books_pb2.BookResponse()
-            
-        except (DatabaseError, OperationalError, IntegrityError, InterfaceError, ProgrammingError, DataError) as e:
-            
-            if connection:
-            
-                connection.rollback()
-            
-            self.logger.fatal(f'Database error occured: {e}. Full traceback below', exc_info=True)
-            
-            context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details(f'Database error: {e}')
-            
+            context.set_details('Deleted Successfully')
             response = books_pb2.BookResponse()
 
         except Exception as e:
-            
-            if connection:
-                
-                connection.rollback()
-                
-            self.logger.error("An unexpected error occurred: %s", str(e), exc_info=True)
+            self.logger.error (
+                "An unexpected error occurred: %s", 
+                str(e), 
+                exc_info=True,
+            )
             
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details(f'Unexpected error: {e}')
-            
             response = books_pb2.BookResponse()
-                
-        finally:
-                
-            cursor.close()
-            self.db.release_connection(connection)
             
-            self.logger.info('Db connection closed successfully')
-            
-            return response
+        return response
         
-    def UpdateBook(self, request, context):
-        connection = None
-        cursor = None
+    def UpdateBook (
+        self, 
+        request, 
+        context,
+    ):
 
-        try:
-            connection = self.db.get_connection()
-            cursor = connection.cursor()
+        # Validate request
+        if not request.book_id:
+            context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+            context.set_details("Book ID is required for updating.")
+            return books_pb2.BookResponse()
+
+        # Generate update query and parameters
+        query, params = self.build_update_query(request)
+
+        if not query:
+            context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+            context.set_details("No fields provided for update.")
+            return books_pb2.BookResponse()
+
+        # Append book_id to params for WHERE clause
+        params.append(request.book_id)
             
-            self.logger.info('Db connection established successfully')
+        try:
+            updated_book = self.database_controller.execute_edit_query (
+                query, 
+                tuple(params),
+            )
 
-            updates = []
-            params = []
-
-            if request.book_name:
-                updates.append("book_name = %s")
-                params.append(request.book_name)
-            if request.author:
-                updates.append("author = %s")
-                params.append(request.author)
-
-            if not updates:
-                context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-                context.set_details("No fields provided for update.")
+            if not updated_book:
+                context.set_code(grpc.StatusCode.NOT_FOUND)
+                context.set_details("Book not found.")
                 return books_pb2.BookResponse()
 
-            query = f'''
-            UPDATE base_book
-            SET {', '.join(updates)}
-            WHERE id = %s
-            '''
-            params.append(request.book_id) 
+            # Convert result into gRPC response
+            response = books_pb2.BookResponse (
+                id=updated_book[0],
+                book_name=updated_book[1],
+                author=updated_book[2],
+            )
 
-            cursor.execute(query, tuple(params))
-            
-            connection.commit()
-            
-            self.logger.info('Book updated successfully.')
-            
-            response = books_pb2.BookResponse()
-            response.id = request.book_id
-            response.book_name = request.book_name if request.book_name else ''
-            response.author = request.author if request.author else ''
-            
-        except (DatabaseError, OperationalError, IntegrityError, InterfaceError, ProgrammingError, DataError) as e:
-            if connection:
-                connection.rollback()
-            
-            self.logger.fatal(f'Database error occurred: {e}. Full traceback below', exc_info=True)
-            context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details(f'Database error: {e}')
-            response = books_pb2.BookResponse()
+            # Convert timestamp
+            ts = Timestamp()
+            ts.FromDatetime(updated_book[3])
+            response.uploaded_at.CopyFrom(ts)
+
+            return response
 
         except Exception as e:
-            if connection:
-                connection.rollback()
-            
-            self.logger.error("An unexpected error occurred: %s", str(e), exc_info=True)
+            self.logger.error("Database update failed: %s", str(e), exc_info=True)
             context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details(f'Unexpected error: {e}')
-            response = books_pb2.BookResponse()
-            
-        finally:
-            cursor.close()
-            self.db.release_connection(connection)
-            
-            self.logger.info('Db connection closed successfully')
+            context.set_details("Internal server error while updating book.")
+            return books_pb2.BookResponse()
         
-        return response
+    def build_update_query (
+        request,
+    ):
+        
+        """
+        Constructs an UPDATE SQL query and parameters from the request.
+        
+        Args:
+            request: The request object containing update fields.
+
+        Returns:
+            Tuple[str, List]: The SQL query string and corresponding parameters.
+        """
+        
+        fields = {
+            "book_name": request.book_name,
+            "author": request.author,
+        }
+
+        updates = [f"{key} = %s" for key, value in fields.items() if value]
+        params = [value for value in fields.values() if value]
+
+        if not updates:
+            return None, None
+
+        query = f"UPDATE base_book SET {', '.join(updates)} WHERE id = %s"
+        return query, params

@@ -3,21 +3,54 @@ syntax = "proto3";
 package book;
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto"; // Standardized Empty message
 
+// **BookService**: Defines RPC methods for book management.
 service BookService {
+  // Create a new book
+  rpc CreateBook (CreateBookRequest) returns (BookResponse);
+  
+  // Retrieve a book by ID
   rpc GetBookById (BookRequest) returns (BookResponse);
-  rpc GetAllBooks (EmptyRequest) returns (BooksResponse);
-  rpc PostBook (PostBookRequest) returns (BookResponse);
-  rpc DeleteBook (DeleteBookRequest) returns (BookResponse);
+  
+  // Retrieve all books
+  rpc GetAllBooks (google.protobuf.Empty) returns (BooksResponse);
+  
+  // Update an existing book
   rpc UpdateBook (UpdateBookRequest) returns (BookResponse);
+  
+  // Delete a book by ID
+  rpc DeleteBook (DeleteBookRequest) returns (BookResponse);
 }
 
+// **Request Messages**
+
+// Request to retrieve a book by ID
 message BookRequest {
   int32 book_id = 1;
 }
 
-message EmptyRequest {}
+// Request to create a new book
+message CreateBookRequest {
+  string book_name = 1;
+  string author = 2;
+}
 
+// Request to update a book
+message UpdateBookRequest {
+  int32 book_id = 1;
+  optional string book_name = 2; // Optional for partial updates
+  optional string author = 3;    // Optional for partial updates
+}
+
+// Request to delete a book
+message DeleteBookRequest {
+  int32 book_id = 1;
+}
+
+// **Response Messages**
+
+// Response containing a single book's details
 message BookResponse {
   int32 id = 1;
   string book_name = 2;
@@ -25,21 +58,7 @@ message BookResponse {
   google.protobuf.Timestamp uploaded_at = 4;
 }
 
+// Response containing multiple books
 message BooksResponse {
   repeated BookResponse books = 1;
-}
-
-message PostBookRequest {
-  string book_name = 1; 
-  string book_author = 2; 
-}
-
-message DeleteBookRequest {
-  int32 book_id = 1;
-}
-
-message UpdateBookRequest {
-  int32 book_id = 1;
-  string book_name = 2;
-  string author = 3;
 }

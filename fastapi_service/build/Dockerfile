@@ -1,0 +1,22 @@
+FROM python:3.12.5
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir --upgrade pip virtualenv
+
+COPY requirements.txt .
+
+RUN python -m venv venv && ./venv/bin/pip install --no-cache-dir -r requirements.txt
+
+COPY house_zhkh_ms/ .
+
+EXPOSE 8000
+
+CMD ["./venv/bin/uvicorn", "main.main:app", "--host", "0.0.0.0", "--port", "8001"]

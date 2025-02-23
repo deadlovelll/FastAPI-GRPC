@@ -6,7 +6,9 @@ from schemas.book_response.book_response import BookResponse
 from schemas.books_response.books_response import BooksResponse
 from controllers.book_controller.book_controller import BookController
 
-class BookEndpoints:
+from fastapi_service.routers.base_router.base_router import BaseRouter
+
+class BookEndpoints(BaseRouter):
     
     """
     Class-based endpoints for book operations.
@@ -22,6 +24,8 @@ class BookEndpoints:
         """
         Initialize the BookEndpoints and set up the router.
         """
+        
+        super().__init__(auto_protect=True)
         
         self.router = APIRouter(prefix="/books", tags=["Books"])
         self._setup_routes()
@@ -76,7 +80,6 @@ class BookEndpoints:
         for route in routes:
             self.router.add_api_route(**route)
 
-        
     async def get_all_books (
         token: str,
         controller: BookController = Depends(BookController),

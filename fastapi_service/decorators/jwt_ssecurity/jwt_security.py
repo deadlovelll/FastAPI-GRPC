@@ -1,5 +1,4 @@
 import os
-import asyncio
 import aiohttp
 from functools import wraps
 from typing import Callable
@@ -21,6 +20,7 @@ class JWTSecurity:
         self.validation_url = os.getenv('JWT_VALIDATION_URL')
 
     async def validate_jwt (
+        self,
         token: str,
     ) -> bool:
         
@@ -33,7 +33,7 @@ class JWTSecurity:
         
         async with aiohttp.ClientSession() as session:
             async with session.post (
-                JWTSecurity.VALIDATION_URL, 
+                self.validation_url, 
                 json={'token': token}
             ) as resp:
                 
@@ -41,6 +41,7 @@ class JWTSecurity:
                 return bool(response.get('valid', False))
 
     def jwt_required (
+        self,
         func: Callable,
     ) -> Callable:
         

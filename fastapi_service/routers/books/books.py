@@ -25,6 +25,7 @@ class BookEndpoints(BaseRouter):
         Initialize the BookEndpoints and set up the router.
         """
         
+        # If auto_protect is False, you should decorate jwt protection manually
         super().__init__(auto_protect=True)
         
         self.router = APIRouter(prefix="/books", tags=["Books"])

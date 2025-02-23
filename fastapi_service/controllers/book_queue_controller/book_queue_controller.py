@@ -138,7 +138,7 @@ class BookQueueConsumer:
         
         if len(parts) < 4:
             self.logger.error (
-                "Invalid message format for 'Editing Book': %s", 
+                'Invalid message format for "Editing Book": %s', 
                 parts,
             )
             return

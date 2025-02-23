@@ -140,12 +140,12 @@ class BookController:
             
             self.logger.info (
                 'Edit book task queued successfully for book_id: %s', 
-                book_id
-            
+                book_id,
             )
+            
             return JSONResponse (
                 {
-                    'STATUS': 'SUCCESS'
+                    'STATUS': 'SUCCESS',
                 }, 
                 status_code=200,
             )

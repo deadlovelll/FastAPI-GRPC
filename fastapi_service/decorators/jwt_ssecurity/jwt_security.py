@@ -34,7 +34,7 @@ class JWTSecurity:
         async with aiohttp.ClientSession() as session:
             async with session.post (
                 self.validation_url, 
-                json={'token': token}
+                json={'token': token},
             ) as resp:
                 
                 response = await resp.json()

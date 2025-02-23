@@ -1,3 +1,4 @@
+import os
 import uvicorn
 from fastapi import FastAPI
 
@@ -51,4 +52,8 @@ def get_app() -> FastAPI:
 app = get_app()
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8100)
+    uvicorn.run (
+        app, 
+        host=os.getenv('FASTAPI_HOST'), 
+        port=int(os.getenv('FASTAPI_PORT')),
+    )

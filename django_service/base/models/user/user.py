@@ -31,7 +31,10 @@ class User(models.Model):
         auto_now_add=True,
     )
 
-    def __str__(self):
+    def __str__ (
+        self,
+    ) -> str:
+        
         return self.username
 
     class Meta:

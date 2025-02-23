@@ -38,7 +38,7 @@ class Book(models.Model):
     uploaded_at = models.DateTimeField (
         auto_now_add=True,
     )
-    uploaded_by = models.ForeignKey(
+    uploaded_by = models.ForeignKey (
         User,
         on_delete=models.SET_NULL,
         null=True,
@@ -46,7 +46,10 @@ class Book(models.Model):
         related_name='books',
     )
 
-    def __str__(self):
+    def __str__ (
+        self,
+    ) -> None:
+        
         return f"{self.book_name} by {self.author}"
 
     class Meta:

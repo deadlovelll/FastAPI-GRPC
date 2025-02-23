@@ -3,6 +3,9 @@ import aiohttp
 
 class JWTSecurity:
     
+    def __init__(self) -> None:
+        pass
+    
     @staticmethod
     async def validate_jwt(token: str) -> bool:
         

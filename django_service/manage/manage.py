@@ -4,7 +4,7 @@ import sys
 from dotenv import load_dotenv
 
 def main():
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'books_project.settings'
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'books_project.settings.settings'
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

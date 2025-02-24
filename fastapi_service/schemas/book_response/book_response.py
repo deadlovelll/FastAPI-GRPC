@@ -1,4 +1,4 @@
-from schemas.book.book import Book
+from fastapi_service.schemas.book.book import Book
 
 class BookResponse(Book):
     

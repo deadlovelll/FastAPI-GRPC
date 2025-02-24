@@ -1,4 +1,4 @@
-from modules.database.pool_controller.database_controller import DatabasePoolController
+from fastapi_service.modules.database.pool_controller.database_controller import DatabasePoolController
 
 class StartupHandler:
     

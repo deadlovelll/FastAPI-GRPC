@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
-from schemas.book.book import Book
-from schemas.book_response.book_response import BookResponse
-from schemas.books_response.books_response import BooksResponse
-from controllers.book_controller.book_controller import BookController
+from fastapi_service.schemas.book.book import Book
+from fastapi_service.schemas.book_response.book_response import BookResponse
+from fastapi_service.schemas.books_response.books_response import BooksResponse
+from fastapi_service.controllers.book_controller.book_controller import BookController
 
 from fastapi_service.routers.base_router.base_router import BaseRouter
 

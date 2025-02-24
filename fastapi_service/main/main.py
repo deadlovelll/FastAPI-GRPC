@@ -2,7 +2,7 @@ import os
 import uvicorn
 from fastapi import FastAPI
 
-from fastapi_service.routers.books import books
+from fastapi_service.routers.books.books import BookEndpoints
 from fastapi_service.lifecycle_events.startup_events.startup_handler import StartupHandler
 from fastapi_service.lifecycle_events.shutdown_events.shutdown_handler import ShutdownHandler
     
@@ -26,6 +26,8 @@ class AppFactory:
         
         self.startup_handler = StartupHandler()
         self.shutdown_handler = ShutdownHandler()
+        
+        self.books_endpoint = BookEndpoints()
         
         self.fastapi_app = FastAPI()
         
@@ -65,7 +67,7 @@ class AppFactory:
         routers, ensuring modular structure.
         """
         
-        self.fastapi_app.include_router(books.BookEndpoints.router)
+        self.fastapi_app.include_router(self.books_endpoint.router)
     
     def create (
         self,

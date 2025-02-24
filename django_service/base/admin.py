@@ -3,7 +3,6 @@ from django.contrib import admin
 from base.models.book.book import Book
 from base.models.user.user import User
 
-
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
     

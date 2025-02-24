@@ -1,7 +1,8 @@
 from django.urls import path
-from base.views.views.views import TokenValidationView
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+from base.views.views.views import TokenValidationView
 
 urlpatterns = [
     path (

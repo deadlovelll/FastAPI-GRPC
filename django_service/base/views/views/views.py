@@ -2,6 +2,8 @@ from django.middleware.csrf import get_token
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import serializers
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import UntypedToken
@@ -19,6 +21,13 @@ class Home(BaseAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
+    
+    @swagger_auto_schema(
+        operation_description="Retrieve a greeting message for authenticated users.",
+        responses={
+            status.HTTP_200_OK: serializers.CharField(help_text="A welcome message")
+        }
+    )
     def get (
         self, 
         request: Request,
@@ -52,6 +61,12 @@ class CSRFTokenView(BaseAPIView):
     authentication_classes = []  # Public endpoint; no authentication needed.
     permission_classes = []      # Public endpoint; no permissions required.
 
+    @swagger_auto_schema(
+        operation_description="Retrieve a CSRF token.",
+        responses={
+            status.HTTP_200_OK: serializers.DictField(help_text="A dictionary containing the CSRF token")
+        }
+    )
     def get (
         self, 
         request: Request,
@@ -87,6 +102,25 @@ class TokenValidationView(BaseAPIView):
     authentication_classes = []  # Allows unauthenticated requests.
     permission_classes = []      # Open endpoint for token validation.
 
+    
+    @swagger_auto_schema(
+        operation_description="Validate a provided JWT token and return its payload if valid.",
+        request_body=serializers.JSONField(help_text="A JSON object containing the token."),
+        responses={
+            status.HTTP_200_OK: serializers.Serializer(
+                fields={
+                    'valid': serializers.BooleanField(help_text="Indicates if the token is valid"),
+                    'payload': serializers.CharField(help_text="The decoded payload of the token")
+                }
+            ),
+            status.HTTP_400_BAD_REQUEST: serializers.Serializer(
+                fields={
+                    'IS_VALID': serializers.BooleanField(help_text="Indicates if the token is valid"),
+                    'DETAIL': serializers.CharField(help_text="Error details")
+                }
+            )
+        }
+    )
     def post (
         self, 
         request: Request,

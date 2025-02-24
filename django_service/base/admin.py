@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from django_service.base.models.book.book import Book
-from django_service.base.models.user.user import User
+from base.models.book.book import Book
+from base.models.user.user import User
 
 
 @admin.register(Book)

@@ -1,6 +1,6 @@
 from django.db import models
 
-from django_service.base.models.user.user import User
+from base.models.user.user import User
 
 class Book(models.Model):
     

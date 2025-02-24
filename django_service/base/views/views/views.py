@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import UntypedToken
 
-from django_service.base.views.base_view.base_view import BaseAPIView
+from base.views.base_view.base_view import BaseAPIView
 
 class Home(BaseAPIView):
     

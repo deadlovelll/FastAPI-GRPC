@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from django_service.base.modules.logger.logger import LoggerModule
+from base.modules.logger.logger import LoggerModule
 
 class BaseAPIView(APIView):
     

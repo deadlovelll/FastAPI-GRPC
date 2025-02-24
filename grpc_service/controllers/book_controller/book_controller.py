@@ -1,14 +1,26 @@
 import grpc
+from grpc import ServicerContext, StatusCode
 
-from grpc_service.modules.logger.logger import LoggerModule
-import grpc_service.books_pb.books_pb2 as books_pb2
-import grpc_service.books_pb.books_pb2_grpc as books_pb2_grpc
-
+from typing import Tuple, Optional
 from datetime import datetime
+
 from google.protobuf.timestamp_pb2 import Timestamp
 
+import grpc_service.books_pb.books_pb2 as books_pb2
+import grpc_service.books_pb.books_pb2_grpc as books_pb2_grpc
+from grpc_service.books_pb.books_pb2 import (
+    BookResponse,
+    PostBookRequest,
+    DeleteBookRequest,
+    UpdateBookRequest,
+    EmptyRequest,
+    GetBookByIdRequest,
+)
+
+from grpc_service.modules.logger.logger import LoggerModule
 from grpc_service.modules.database.controller.database_controller import DatabaseController
 from grpc_service.controllers.base_grpc_controller.base_grpc_controller import BaseGRPCController
+
 
 class BookService (
     books_pb2_grpc.BookServiceServicer, 
@@ -24,9 +36,9 @@ class BookService (
 
     def GetBookById (
         self, 
-        request, 
-        context,
-    ):
+        request: GetBookByIdRequest, 
+        context: ServicerContext,
+    ) -> BookResponse:
         
         """
         Retrieve a book by its ID from the database.
@@ -53,7 +65,7 @@ class BookService (
             """
             
             book = self.database_controller.execute_get_query (
-                query
+                query,
             )
 
             if book:
@@ -79,16 +91,37 @@ class BookService (
                 response = books_pb2.BookResponse()
 
         except Exception as e:
+            
+            self.logger.error (
+                "An unexpected error occurred: %s", 
+                str(e), 
+                exc_info=True,
+            )
                 
             context.set_code(grpc.StatusCode.INTERNAL)
             response = books_pb2.BookResponse()
 
         return response
         
-    def GetAllBooks(self, request, context):
+    def GetAllBooks (
+        self, 
+        request: EmptyRequest, 
+        context: ServicerContext,
+    ) -> BookResponse:
         
-        connection = None
-        cursor = None
+        """
+        Retrieves all books from the database.
+
+        Args:
+            request (EmptyRequest): The gRPC request (unused in this case).
+            context (ServicerContext): The gRPC context for handling errors and status codes.
+
+        Returns:
+            BooksResponse: A response containing a list of all books in the database.
+
+        Raises:
+            StatusCode.INTERNAL: If an unexpected database error occurs.
+        """
         
         try:
             
@@ -97,11 +130,10 @@ class BookService (
             FROM base_book
             '''
             
-            self.database_controller.execute_get_query (
+            books = self.database_controller.execute_get_query (
                 query
             )
             
-            books = cursor.fetchall()
             response = books_pb2.BooksResponse()
             
             for book in books:
@@ -135,9 +167,28 @@ class BookService (
         
     def PostBook (
         self, 
-        request, 
-        context,
-    ):
+        request: PostBookRequest, 
+        context: ServicerContext,
+    ) -> BookResponse:
+        
+        """
+        Handles the creation of a new book record in the database.
+
+        This method inserts a new book into the `base_book` table with the provided
+        book name and author. The `uploaded_at` field is automatically set to the
+        current timestamp.
+
+        Args:
+            request (PostBookRequest): The gRPC request containing `book_name` and `book_author`.
+            context (grpc.ServicerContext): The gRPC context for setting status codes and messages.
+
+        Returns:
+            BookResponse: A gRPC response object indicating success or failure.
+
+        Raises:
+            grpc.StatusCode.INVALID_ARGUMENT: If the request does not contain required fields.
+            grpc.StatusCode.INTERNAL: If an unexpected error occurs during the database operation.
+        """
         
         try:
             query = '''
@@ -171,9 +222,26 @@ class BookService (
         
     def DeleteBook (
         self, 
-        request, 
-        context,
-    ):
+        request: DeleteBookRequest, 
+        context: ServicerContext,
+    )-> BookResponse:
+        
+        """
+        Handles the deletion of a book record from the database.
+
+        This method deletes a book from the `base_book` table based on the given `book_id`.
+
+        Args:
+            request (DeleteBookRequest): The gRPC request containing `book_id` of the book to delete.
+            context (ServicerContext): The gRPC context for setting status codes and messages.
+
+        Returns:
+            BookResponse: A gRPC response object indicating success or failure.
+
+        Raises:
+            StatusCode.INVALID_ARGUMENT: If `book_id` is missing or invalid.
+            StatusCode.INTERNAL: If an unexpected error occurs during the database operation.
+        """
         
         try:
             query = '''
@@ -204,25 +272,38 @@ class BookService (
         
     def UpdateBook (
         self, 
-        request, 
-        context,
-    ):
+        request: UpdateBookRequest, 
+        context: ServicerContext,
+    ) -> BookResponse:
+        
+        """
+        Handles updating a book record in the database.
 
-        # Validate request
+        Args:
+            request (UpdateBookRequest): The gRPC request containing book ID and fields to update.
+            context (ServicerContext): The gRPC context for handling errors and setting status codes.
+
+        Returns:
+            BookResponse: A response containing updated book details if successful.
+
+        Raises:
+            StatusCode.INVALID_ARGUMENT: If `book_id` is missing or no fields are provided for update.
+            StatusCode.NOT_FOUND: If the specified book does not exist in the database.
+            StatusCode.INTERNAL: If an unexpected error occurs.
+        """
+
         if not request.book_id:
             context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
             context.set_details("Book ID is required for updating.")
             return books_pb2.BookResponse()
 
-        # Generate update query and parameters
-        query, params = self.build_update_query(request)
+        query, params = self.__build_update_query(request)
 
         if not query:
             context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
             context.set_details("No fields provided for update.")
             return books_pb2.BookResponse()
 
-        # Append book_id to params for WHERE clause
         params.append(request.book_id)
             
         try:
@@ -236,7 +317,6 @@ class BookService (
                 context.set_details("Book not found.")
                 return books_pb2.BookResponse()
 
-            # Convert result into gRPC response
             response = books_pb2.BookResponse (
                 id=updated_book[0],
                 book_name=updated_book[1],
@@ -251,14 +331,20 @@ class BookService (
             return response
 
         except Exception as e:
-            self.logger.error("Database update failed: %s", str(e), exc_info=True)
+            
+            self.logger.error(
+                "Database update failed: %s", 
+                str(e), 
+                exc_info=True,
+            )
+            
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details("Internal server error while updating book.")
             return books_pb2.BookResponse()
         
-    def build_update_query (
-        request,
-    ):
+    def __build_update_query (
+        request: UpdateBookRequest,
+    ) -> Tuple[Optional[str], Optional[List[str]]]:
         
         """
         Constructs an UPDATE SQL query and parameters from the request.

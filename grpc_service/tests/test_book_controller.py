@@ -1,11 +1,11 @@
 import unittest
-from unittest.mock import MagicMock
 from datetime import datetime
+from unittest.mock import MagicMock
 
 import grpc
 from dotenv import load_dotenv
 
-from controllers.book_controller.book_controller import BookService
+from grpc_service.controllers.book_controller.book_controller import BookService
 
 class TestBookService(unittest.TestCase):
     
@@ -200,6 +200,157 @@ class TestBookService(unittest.TestCase):
         
         self.context.set_code.assert_called_with(grpc.StatusCode.NOT_FOUND)
         self.context.set_details.assert_called_with("Book not found.")
-
+        
+    def test_get_book_by_id_none_returned (
+        self,
+    ) -> None:
+        
+        """
+        Tests retrieving a book by ID when the database returns None for the query.
+        
+        - Mocks the database returning None (not found)
+        - Asserts that the response is handled gracefully with status code NOT_FOUND
+        """
+        
+        request = MagicMock()
+        request.book_id = 1
+        
+        # Mocks database returning None
+        self.database_controller.execute_get_query.return_value = None
+        
+        response = self.service.GetBookById (
+            request, 
+            self.context,
+        )
+        
+        self.assertEqual(response.id, 0)
+        self.context.set_code.assert_called_with(grpc.StatusCode.NOT_FOUND)
+    
+    def test_get_all_books_no_books (
+        self,
+    ) -> None:
+        
+        """
+        Tests retrieving all books when there are no books in the database.
+        
+        - Mocks an empty database response
+        - Asserts that the response contains an empty list of books
+        """
+        
+        request = MagicMock()
+        
+        # Mocks an empty list of books
+        self.database_controller.execute_get_query.return_value = []
+        
+        response = self.service.GetAllBooks (
+            request, 
+            self.context,
+        )
+        
+        self.assertEqual(len(response.books), 0)
+    
+    def test_post_book_duplicate (
+        self,
+    ) -> None:
+        
+        """
+        Tests posting a duplicate book.
+        
+        - Mocks a failed insert operation due to a duplicate book
+        - Asserts that the appropriate error message and status code are set
+        """
+        
+        request = MagicMock()
+        request.book_name = "Duplicate Book"
+        request.book_author = "Same Author"
+        
+        # Mocks failure due to duplicate book
+        self.database_controller.execute_insert_query.side_effect = Exception("Duplicate book.")
+        
+        response = self.service.PostBook (
+            request, 
+            self.context,
+        )
+        
+        self.context.set_code.assert_called_with(grpc.StatusCode.INTERNAL)
+        self.context.set_details.assert_called_with("Unexpected error: Duplicate book.")
+    
+    def test_get_book_by_id_database_error (
+        self,
+    ) -> None:
+        
+        """
+        Tests for database errors while fetching a book.
+        
+        - Mocks a database exception during the `execute_get_query`
+        - Asserts that the error is logged and handled with a generic error response
+        """
+        
+        request = MagicMock()
+        request.book_id = 1
+        
+        # Mocks a database error
+        self.database_controller.execute_get_query.side_effect = Exception("Database error")
+        
+        response = self.service.GetBookById (
+            request, 
+            self.context,
+        )
+        
+        self.context.set_code.assert_called_with(grpc.StatusCode.INTERNAL)
+        self.context.set_details.assert_called_with("Internal server error: Database error")
+    
+    def test_post_book_database_failure (
+        self,
+    ) -> None:
+        
+        """
+        Tests posting a book when the database fails to insert the data.
+        
+        - Mocks a database insertion failure
+        - Asserts that the appropriate error response is returned
+        """
+        
+        request = MagicMock()
+        request.book_name = "New Book"
+        request.book_author = "Author Name"
+        
+        # Mocks failure to insert the book into the database
+        self.database_controller.execute_insert_query.side_effect = Exception('Database insert failed')
+        
+        response = self.service.PostBook (
+            request, 
+            self.context,
+        )
+        
+        self.context.set_code.assert_called_with(grpc.StatusCode.INTERNAL)
+        self.context.set_details.assert_called_with('Unexpected error: Database insert failed')
+    
+    def test_delete_book_database_failure (
+        self,
+    ) -> None:
+        
+        """
+        Tests deleting a book when the database fails to delete the book.
+        
+        - Mocks a failure during the deletion operation
+        - Asserts that the error is handled with a generic error message
+        """
+        
+        request = MagicMock()
+        request.book_id = 1
+        
+        # Mocks failure to delete the book from the database
+        self.database_controller.execute_delete_query.side_effect = Exception("Database delete failed.")
+        
+        response = self.service.DeleteBook (
+            request, 
+            self.context,
+        )
+        
+        self.context.set_code.assert_called_with(grpc.StatusCode.INTERNAL)
+        self.context.set_details.assert_called_with("Unexpected error: Database delete failed.")
+    
+    
 if __name__ == "__main__":
     unittest.main()

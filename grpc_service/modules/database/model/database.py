@@ -1,7 +1,8 @@
 import os
+from typing import Optional
+
 import psycopg2
 from psycopg2 import pool
-from typing import Optional
 
 class Database:
     

@@ -1,8 +1,9 @@
 import unittest
-from typing import Any, List, Tuple, Optional
+from typing import Any, List, Optional, Tuple
 
-from modules.database.controller.database_controller import DatabaseController
 from psycopg2.extensions import connection
+
+from grpc_service.modules.database.controller.database_controller import DatabaseController
 
 class FakeCursor:
     

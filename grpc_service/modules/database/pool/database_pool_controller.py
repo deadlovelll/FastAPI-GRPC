@@ -1,5 +1,5 @@
-from fastapi_service.modules.database.model.database import Database
-from fastapi_service.modules.logger.logger import LoggerModule
+from grpc_service.modules.database.model.database import Database
+from grpc_service.modules.logger.logger import LoggerModule
 
 class DatabasePoolController:
     

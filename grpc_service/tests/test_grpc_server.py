@@ -1,14 +1,13 @@
 import os
 import unittest
 from concurrent import futures
-import grpc
 from unittest.mock import patch
 
-import books_pb.books_pb2 as books_pb2
-import books_pb.books_pb2_grpc as books_pb2_grpc
+import grpc
 
-from grpc_server.grpc_server import GRPCServerFactory
-
+import grpc_service.books_pb.books_pb2 as books_pb2
+import grpc_service.books_pb.books_pb2_grpc as books_pb2_grpc
+from grpc_service.grpc_server.grpc_server import GRPCServerFactory
 
 class TestGRPCServer(unittest.TestCase):
     

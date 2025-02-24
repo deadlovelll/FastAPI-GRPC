@@ -1,4 +1,4 @@
-from modules.logger.logger import LoggerModule
+from grpc_service.modules.logger.logger import LoggerModule
 
 class BaseGRPCController:
     

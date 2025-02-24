@@ -6,9 +6,9 @@ from datetime import datetime
 
 from google.protobuf.timestamp_pb2 import Timestamp
 
-import books_pb.books_pb2 as books_pb2
-import books_pb.books_pb2_grpc as books_pb2_grpc
-from books_pb.books_pb2 import (
+import grpc_service.books_pb.books_pb2 as books_pb2
+import grpc_service.books_pb.books_pb2_grpc as books_pb2_grpc
+from grpc_service.books_pb.books_pb2 import (
     BookResponse,
     PostBookRequest,
     DeleteBookRequest,
@@ -17,10 +17,9 @@ from books_pb.books_pb2 import (
     BookRequest,
 )
 
-from modules.logger.logger import LoggerModule
-from modules.database.controller.database_controller import DatabaseController
-from controllers.base_grpc_controller.base_grpc_controller import BaseGRPCController
-
+from grpc_service.modules.logger.logger import LoggerModule
+from grpc_service.modules.database.controller.database_controller import DatabaseController
+from grpc_service.controllers.base_grpc_controller.base_grpc_controller import BaseGRPCController
 
 class BookService (
     books_pb2_grpc.BookServiceServicer, 
@@ -118,6 +117,7 @@ class BookService (
             )
                 
             context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f"Internal server error: {str(e)}")
             response = books_pb2.BookResponse()
 
         return response

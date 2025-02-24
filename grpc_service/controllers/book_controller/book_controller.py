@@ -1,7 +1,7 @@
 import grpc
 from grpc import ServicerContext, StatusCode
 
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List
 from datetime import datetime
 
 from google.protobuf.timestamp_pb2 import Timestamp
@@ -27,10 +27,27 @@ class BookService (
     BaseGRPCController,
 ):
     
+    """
+    BookService provides the gRPC methods for managing book records.
+
+    This service implements the methods defined in the books.proto file for operations such as 
+    retrieving a single book by ID, retrieving all books, creating, updating, and deleting book records.
+    It leverages a DatabaseController for executing database queries and inherits common gRPC response 
+    handling behavior from BaseGRPCController.
+    """
+    
     def __init__ (
         self,
         database_controller: DatabaseController = DatabaseController(),
     ) -> None:
+        
+        """
+        Initializes the BookService instance.
+
+        Args:
+            database_controller (DatabaseController, optional): An instance of DatabaseController 
+                used to execute database operations. If not provided, a new instance is created.
+        """
         
         self.database_controller = database_controller
 

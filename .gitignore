@@ -29,3 +29,6 @@ dist/
 *.swp
 .DS_Store
 Thumbs.db
+
+*.coverage
+*.env

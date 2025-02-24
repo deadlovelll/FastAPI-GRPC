@@ -1,6 +1,18 @@
-FROM python:latest
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONFAULTHANDLER=1 \
+    PYTHONHASHSEED=random \
+    PIP_NO_CACHE_DIR=on \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PIP_DEFAULT_TIMEOUT=100
 
 WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 
@@ -10,4 +22,7 @@ COPY . .
 
 EXPOSE 50051
 
-CMD ["python3", "app/server.py"]
+RUN addgroup --system appgroup && adduser --system --group appuser
+USER appuser
+
+CMD ["./venv/bin/python3", "grpc_server.server.py"]

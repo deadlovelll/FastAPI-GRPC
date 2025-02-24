@@ -28,7 +28,7 @@ class BookQueueConsumer:
         
         self.rabbit_client = rabbit_client
         self.book_service = book_service
-        self.logger = logger
+        self.logger = logger.logger_initialization()
         
         self.action_handlers = {
             "Posting Book": self._handle_create_book,

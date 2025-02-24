@@ -31,7 +31,7 @@ class RabbitMQController:
         self.queue_name = queue_name
         self.connection = None
         self.channel = None
-        self.logger = logger
+        self.logger = logger.logger_initialization()
         self.connect()
 
     def connect (

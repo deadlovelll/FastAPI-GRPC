@@ -1,6 +1,6 @@
 from fastapi.responses import JSONResponse  
 
-from controllers.rabbitmq_controller.rabbitmq_controller import RabbitMQController
+from fastapi_service.controllers.rabbitmq_controller.rabbitmq_controller import RabbitMQController
 from grpc_service.books_pb import books_pb2
 
 from fastapi_service.modules.logger.logger import LoggerModule
@@ -28,7 +28,7 @@ class BookController:
         """
         
         self.grpc_stub = grpc_stub
-        self.logger = logger
+        self.logger = logger.logger_initialization()
         self.rabbitmq_controller = RabbitMQController()
 
     async def get_all_books (

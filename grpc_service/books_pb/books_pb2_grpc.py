@@ -3,7 +3,7 @@ from typing import Any, Sequence
 
 import grpc
 
-import grpc_service.books_pb.books_pb2 as books__pb2
+import books_pb.books_pb2 as books__pb2
 
 GRPC_GENERATED_VERSION = "1.66.1"
 GRPC_VERSION = grpc.__version__

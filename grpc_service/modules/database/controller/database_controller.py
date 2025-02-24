@@ -1,6 +1,6 @@
 from typing import Any, List, Optional, Tuple
 from psycopg2.extensions import connection
-from grpc_service.modules.database.model.database import Database 
+from modules.database.model.database import Database 
 
 class DatabaseController:
     

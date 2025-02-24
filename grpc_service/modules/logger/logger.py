@@ -6,6 +6,8 @@ import logstash
 
 from logging import Logger
 
+from dotenv import load_dotenv
+
 class LoggerModule:
     
     """
@@ -21,6 +23,8 @@ class LoggerModule:
         """
         Initializes the logger module by reading environment variables for Logstash configuration.
         """
+        
+        load_dotenv()
         
         self.host = os.getenv('LOGGER_HOST')
         self.port = os.getenv('LOGGER_PORT')

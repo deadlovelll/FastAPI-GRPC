@@ -3,8 +3,8 @@ import os
 from concurrent import futures
 
 import grpc
-import grpc_service.books_pb.books_pb2_grpc as books_pb2_grpc
-from grpc_service.controllers.book_controller.book_controller import BookService
+import books_pb.books_pb2_grpc as books_pb2_grpc
+from controllers.book_controller.book_controller import BookService
 
 class GRPCServerFactory:
     

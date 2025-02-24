@@ -1,4 +1,4 @@
-from grpc_service.modules.logger.logger import LoggerModule
+from modules.logger.logger import LoggerModule
 
 class BaseGRPCController:
     
@@ -14,7 +14,7 @@ class BaseGRPCController:
         
         """Initialize logger."""
         
-        self.logger = logger
+        self.logger = logger.logger_initialization()
 
     def success_response (
         self, 

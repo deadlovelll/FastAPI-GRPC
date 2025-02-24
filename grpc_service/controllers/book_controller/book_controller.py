@@ -6,20 +6,20 @@ from datetime import datetime
 
 from google.protobuf.timestamp_pb2 import Timestamp
 
-import grpc_service.books_pb.books_pb2 as books_pb2
-import grpc_service.books_pb.books_pb2_grpc as books_pb2_grpc
-from grpc_service.books_pb.books_pb2 import (
+import books_pb.books_pb2 as books_pb2
+import books_pb.books_pb2_grpc as books_pb2_grpc
+from books_pb.books_pb2 import (
     BookResponse,
     PostBookRequest,
     DeleteBookRequest,
     UpdateBookRequest,
     EmptyRequest,
-    GetBookByIdRequest,
+    BookRequest,
 )
 
-from grpc_service.modules.logger.logger import LoggerModule
-from grpc_service.modules.database.controller.database_controller import DatabaseController
-from grpc_service.controllers.base_grpc_controller.base_grpc_controller import BaseGRPCController
+from modules.logger.logger import LoggerModule
+from modules.database.controller.database_controller import DatabaseController
+from controllers.base_grpc_controller.base_grpc_controller import BaseGRPCController
 
 
 class BookService (
@@ -49,11 +49,13 @@ class BookService (
                 used to execute database operations. If not provided, a new instance is created.
         """
         
+        super().__init__()
+        
         self.database_controller = database_controller
 
     def GetBookById (
         self, 
-        request: GetBookByIdRequest, 
+        request: BookRequest, 
         context: ServicerContext,
     ) -> BookResponse:
         
@@ -361,6 +363,7 @@ class BookService (
             return books_pb2.BookResponse()
         
     def __build_update_query (
+        self,
         request: UpdateBookRequest,
     ) -> Tuple[Optional[str], Optional[List[str]]]:
         

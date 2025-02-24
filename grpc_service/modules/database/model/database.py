@@ -5,12 +5,12 @@ from typing import Optional
 
 class Database:
     
-    instance: Optional["Database"] = None
+    instance: Optional['Database'] = None
     pool: Optional[psycopg2.pool.SimpleConnectionPool] = None
 
     def __new__ (
         cls,
-    ) -> "Database":
+    ) -> 'Database':
         
         """
         Ensures only a single instance of the Database class is created.

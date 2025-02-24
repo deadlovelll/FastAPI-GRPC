@@ -1,5 +1,5 @@
 import grpc
-from grpc import ServicerContext, StatusCode
+from grpc import ServicerContext
 
 from typing import Tuple, Optional, List
 from datetime import datetime
@@ -101,16 +101,16 @@ class BookService (
             else:
                 
                 context.set_code(grpc.StatusCode.NOT_FOUND)
-                context.set_details("Book not found")
+                context.set_details('Book not found')
                 
-                self.logger.info("Book not found for ID: %s", request.book_id)
+                self.logger.info('Book not found for ID: %s', request.book_id)
                 
                 response = books_pb2.BookResponse()
 
         except Exception as e:
             
             self.logger.error (
-                "An unexpected error occurred: %s", 
+                'An unexpected error occurred: %s', 
                 str(e), 
                 exc_info=True,
             )
@@ -142,10 +142,10 @@ class BookService (
         
         try:
             
-            query = '''
+            query = """
             SELECT *
             FROM base_book
-            '''
+            """
             
             books = self.database_controller.execute_get_query (
                 query
@@ -170,7 +170,7 @@ class BookService (
         except Exception as e:
                 
             self.logger.error (
-                "An unexpected error occurred: %s", 
+                'An unexpected error occurred: %s', 
                 str(e), 
                 exc_info=True,
             )
@@ -208,11 +208,11 @@ class BookService (
         """
         
         try:
-            query = '''
+            query = """
             INSERT INTO base_book
             (book_name, author, uploaded_at)
             VALUES (%s, %s, NOW());
-            '''
+            """
             
             book_id = self.database_controller.execute_insert_query (
                 query=query,
@@ -261,10 +261,10 @@ class BookService (
         """
         
         try:
-            query = '''
+            query = """
             DELETE FROM base_book
             WHERE id = %s
-            '''
+            """
             
             self.database_controller.execute_delete_query (
                 query,
@@ -275,8 +275,9 @@ class BookService (
             response = books_pb2.BookResponse()
 
         except Exception as e:
+            
             self.logger.error (
-                "An unexpected error occurred: %s", 
+                'An unexpected error occurred: %s', 
                 str(e), 
                 exc_info=True,
             )
@@ -311,14 +312,14 @@ class BookService (
 
         if not request.book_id:
             context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-            context.set_details("Book ID is required for updating.")
+            context.set_details('Book ID is required for updating.')
             return books_pb2.BookResponse()
 
         query, params = self.__build_update_query(request)
 
         if not query:
             context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-            context.set_details("No fields provided for update.")
+            context.set_details('No fields provided for update.')
             return books_pb2.BookResponse()
 
         params.append(request.book_id)
@@ -331,7 +332,7 @@ class BookService (
 
             if not updated_book:
                 context.set_code(grpc.StatusCode.NOT_FOUND)
-                context.set_details("Book not found.")
+                context.set_details('Book not found.')
                 return books_pb2.BookResponse()
 
             response = books_pb2.BookResponse (
@@ -349,14 +350,14 @@ class BookService (
 
         except Exception as e:
             
-            self.logger.error(
-                "Database update failed: %s", 
+            self.logger.error (
+                'Database update failed: %s', 
                 str(e), 
                 exc_info=True,
             )
             
             context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details("Internal server error while updating book.")
+            context.set_details('Internal server error while updating book.')
             return books_pb2.BookResponse()
         
     def __build_update_query (
@@ -374,15 +375,15 @@ class BookService (
         """
         
         fields = {
-            "book_name": request.book_name,
-            "author": request.author,
+            'book_name': request.book_name,
+            'author': request.author,
         }
 
-        updates = [f"{key} = %s" for key, value in fields.items() if value]
+        updates = [f'{key} = %s' for key, value in fields.items() if value]
         params = [value for value in fields.values() if value]
 
         if not updates:
             return None, None
 
-        query = f"UPDATE base_book SET {', '.join(updates)} WHERE id = %s"
+        query = f'UPDATE base_book SET {', '.join(updates)} WHERE id = %s'
         return query, params

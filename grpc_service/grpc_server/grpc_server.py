@@ -47,7 +47,7 @@ class GRPCServerFactory:
         book_service = BookService()
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=self.max_workers))
         books_pb2_grpc.add_BookServiceServicer_to_server(book_service, server)
-        server.add_insecure_port(f"[::]:{self.port}")
+        server.add_insecure_port(f'[::]:{self.port}')
         return server
 
 
@@ -61,7 +61,7 @@ def serve() -> None:
     
     factory = GRPCServerFactory()
     server = factory.create_server()
-    print(f"gRPC server running on port {factory.port}...")
+    print(f'gRPC server running on port {factory.port}...')
     server.start()
     server.wait_for_termination()
 

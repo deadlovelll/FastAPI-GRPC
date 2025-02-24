@@ -40,19 +40,22 @@ class DatabaseController:
             List[Tuple[Any, ...]]: A list of tuples representing the rows returned by the query.
         """
         
-        if not query.strip().lower().startswith("select"):
-            raise ValueError("Provided query is not a SELECT query.")
+        if not query.strip().lower().startswith('select'):
+            raise ValueError('Provided query is not a SELECT query.')
 
         connection_obj: connection = self.db.get_connection()
+        
         try:
             with connection_obj.cursor() as cursor:
                 cursor.execute(query)
                 result = cursor.fetchall()
             connection_obj.commit()
             return result
+        
         except Exception as e:
             connection_obj.rollback()
             raise e
+        
         finally:
             self.db.release_connection(connection_obj)
 
@@ -76,19 +79,23 @@ class DatabaseController:
             int: The ID of the inserted row if available; otherwise, -1.
         """
         
-        if not query.strip().lower().startswith("insert"):
-            raise ValueError("Provided query is not an INSERT query.")
+        if not query.strip().lower().startswith('insert'):
+            raise ValueError('Provided query is not an INSERT query.')
 
         connection_obj: connection = self.db.get_connection()
+        
         try:
             with connection_obj.cursor() as cursor:
+                cursor.execute('BEGIN;')
                 cursor.execute(query, params)
                 inserted_id = cursor.fetchone()[0] if cursor.description else -1
             connection_obj.commit()
             return inserted_id
+        
         except Exception as e:
             connection_obj.rollback()
             raise e
+        
         finally:
             self.db.release_connection(connection_obj)
 
@@ -112,19 +119,23 @@ class DatabaseController:
             int: The number of rows deleted.
         """
         
-        if not query.strip().lower().startswith("delete"):
-            raise ValueError("Provided query is not a DELETE query.")
+        if not query.strip().lower().startswith('delete'):
+            raise ValueError('Provided query is not a DELETE query.')
 
         connection_obj: connection = self.db.get_connection()
+        
         try:
             with connection_obj.cursor() as cursor:
+                cursor.execute('BEGIN;')
                 cursor.execute(query, params)
                 rowcount = cursor.rowcount
             connection_obj.commit()
             return rowcount
+        
         except Exception as e:
             connection_obj.rollback()
             raise e
+        
         finally:
             self.db.release_connection(connection_obj)
 
@@ -148,18 +159,22 @@ class DatabaseController:
             int: The number of rows updated.
         """
         
-        if not query.strip().lower().startswith("update"):
-            raise ValueError("Provided query is not an UPDATE query.")
+        if not query.strip().lower().startswith('update'):
+            raise ValueError('Provided query is not an UPDATE query.')
 
         connection_obj: connection = self.db.get_connection()
+        
         try:
             with connection_obj.cursor() as cursor:
+                cursor.execute('BEGIN;')
                 cursor.execute(query, params)
                 rowcount = cursor.rowcount
             connection_obj.commit()
             return rowcount
+        
         except Exception as e:
             connection_obj.rollback()
             raise e
+        
         finally:
             self.db.release_connection(connection_obj)

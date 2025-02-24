@@ -1,7 +1,3 @@
-import grpc
-import logging
-from typing import Optional
-
 from grpc_service.modules.logger.logger import LoggerModule
 
 class BaseGRPCController:
@@ -35,7 +31,7 @@ class BaseGRPCController:
             gRPC response object.
         """
         
-        self.logger.info("Response sent successfully.")
+        self.logger.info('Response sent successfully.')
         return response
 
     def error_response (
@@ -57,7 +53,7 @@ class BaseGRPCController:
             An empty response with the error details set in the context.
         """
         
-        self.logger.error(f"Error {code}: {message}")
+        self.logger.error(f'Error {code}: {message}')
         context.set_code(code)
         context.set_details(message)
         return None  # Return empty response

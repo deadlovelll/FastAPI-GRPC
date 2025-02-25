@@ -5,9 +5,24 @@ from fastapi_service.decorators.jwt_ssecurity.jwt_security import JWTSecurity
 
 class TestJWTSecurity(unittest.IsolatedAsyncioTestCase):
     
+    """
+    Unit tests for the `JWTSecurity` class.
+
+    This test suite ensures that:
+    - JWT validation works correctly for valid and invalid tokens.
+    - The `jwt_required` decorator correctly enforces authentication.
+    """
+    
     async def asyncSetUp (
         self,
     ) -> None:
+        
+        """
+        Set up the test environment.
+
+        This method initializes an instance of `JWTSecurity` and sets up mock values for valid and invalid tokens.
+        It also configures an environment variable for the JWT validation URL.
+        """
         
         self.jwt_security = JWTSecurity()
         self.valid_token = 'valid_token'
@@ -19,6 +34,14 @@ class TestJWTSecurity(unittest.IsolatedAsyncioTestCase):
         self, 
         mock_post,
     ) -> None:
+        
+        """
+        Test validation of a valid JWT token.
+
+        This test verifies that:
+        - The `validate_jwt` method correctly calls the external validation endpoint.
+        - A valid token returns `True`.
+        """
         
         mock_response = AsyncMock()
         mock_response.json.return_value = {'valid': True}
@@ -37,6 +60,13 @@ class TestJWTSecurity(unittest.IsolatedAsyncioTestCase):
         mock_post,
     ) -> None:
         
+        """
+        Test validation of an invalid JWT token.
+
+        This test ensures that:
+        - An invalid token correctly returns `False`.
+        """
+        
         mock_response = AsyncMock()
         mock_response.json.return_value = {'valid': False}
         mock_post.return_value.__aenter__.return_value = mock_response
@@ -53,6 +83,14 @@ class TestJWTSecurity(unittest.IsolatedAsyncioTestCase):
         self, 
         mock_validate_jwt,
     ) -> None:
+        
+        """
+        Test the `jwt_required` decorator with a valid token.
+
+        This test verifies that:
+        - If a valid token is provided, the protected function executes successfully.
+        - The `validate_jwt` method is called with the correct token.
+        """
         
         mock_validate_jwt.return_value = True
         
@@ -74,6 +112,15 @@ class TestJWTSecurity(unittest.IsolatedAsyncioTestCase):
         mock_validate_jwt,
     ) -> None:
         
+        """
+        Test the `jwt_required` decorator with an invalid token.
+
+        This test ensures that:
+        - If an invalid token is provided, a `PermissionError` is raised.
+        - The error message is 'Invalid JWT token.'.
+        - The `validate_jwt` method is called with the correct token.
+        """
+        
         mock_validate_jwt.return_value = False
         
         @self.jwt_security.jwt_required
@@ -92,6 +139,14 @@ class TestJWTSecurity(unittest.IsolatedAsyncioTestCase):
     async def test_jwt_required_decorator_missing_token (
         self,
     ) -> None:
+        
+        """
+        Test the `jwt_required` decorator when no token is provided.
+
+        This test ensures that:
+        - If no token is provided to the decorated function, a `ValueError` is raised.
+        - The error message is 'JWT token is required.'.
+        """
         
         @self.jwt_security.jwt_required
         async def protected_endpoint(token):

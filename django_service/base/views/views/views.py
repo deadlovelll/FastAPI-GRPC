@@ -10,6 +10,8 @@ from rest_framework_simplejwt.tokens import UntypedToken
 
 from base.views.base_view.base_view import BaseAPIView
 
+from base.serializers.serializers import TokenValidationErrorSerializer, TokenValidationSuccessSerializer
+
 class Home(BaseAPIView):
     
     """
@@ -99,26 +101,16 @@ class TokenValidationView(BaseAPIView):
     This view accepts a token via a POST request, validates it, and returns the payload if valid.
     """
 
-    authentication_classes = []  # Allows unauthenticated requests.
-    permission_classes = []      # Open endpoint for token validation.
+    authentication_classes = []  
+    permission_classes = []   
 
     
     @swagger_auto_schema(
         operation_description="Validate a provided JWT token and return its payload if valid.",
-        request_body=serializers.JSONField(help_text="A JSON object containing the token."),
+        request_body=serializers.Serializer(),  
         responses={
-            status.HTTP_200_OK: serializers.Serializer(
-                fields={
-                    'valid': serializers.BooleanField(help_text="Indicates if the token is valid"),
-                    'payload': serializers.CharField(help_text="The decoded payload of the token")
-                }
-            ),
-            status.HTTP_400_BAD_REQUEST: serializers.Serializer(
-                fields={
-                    'IS_VALID': serializers.BooleanField(help_text="Indicates if the token is valid"),
-                    'DETAIL': serializers.CharField(help_text="Error details")
-                }
-            )
+            status.HTTP_200_OK: TokenValidationSuccessSerializer(),
+            status.HTTP_400_BAD_REQUEST: TokenValidationErrorSerializer(),
         }
     )
     def post (

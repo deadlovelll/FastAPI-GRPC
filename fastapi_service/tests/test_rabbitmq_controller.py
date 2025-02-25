@@ -5,13 +5,36 @@ from fastapi_service.controllers.rabbitmq_controller.rabbitmq_controller import 
 
 class TestRabbitMQController(unittest.TestCase):
     
+    """
+    Unit tests for the RabbitMQController class.
+
+    This test suite ensures that:
+    - The connection to RabbitMQ is properly established.
+    - Messages are published correctly.
+    - Errors are logged appropriately.
+    - The connection can be closed gracefully.
+    """
+    
     @patch("pika.BlockingConnection")
     def setUp (
         self, 
         mock_connection,
     ) -> None:
         
-        """Set up the RabbitMQController with mock dependencies."""
+        """
+        Set up the RabbitMQController with mock dependencies.
+
+        This method is called before every test to create a test instance 
+        of RabbitMQController with a mocked connection and logger.
+
+        Mocks:
+        - `pika.BlockingConnection`: Prevents actual RabbitMQ connections.
+        - `LoggerModule.logger_initialization`: Prevents real logging.
+
+        Attributes:
+        - `self.mock_channel`: A mocked RabbitMQ channel.
+        - `self.controller`: An instance of RabbitMQController for testing.
+        """
         
         self.mock_channel = MagicMock()
         mock_connection.return_value.channel.return_value = self.mock_channel
@@ -30,7 +53,13 @@ class TestRabbitMQController(unittest.TestCase):
         self,
     ) -> None:
         
-        """Test successful connection to RabbitMQ."""
+        """
+        Test successful connection to RabbitMQ.
+
+        This test verifies that:
+        - The queue is declared upon connection.
+        - A log message is generated indicating a successful connection.
+        """
         
         self.mock_channel.queue_declare.assert_called_once_with(queue="test_queue")
         self.controller.logger.info.assert_called_with (
@@ -53,7 +82,17 @@ class TestRabbitMQController(unittest.TestCase):
         mock_connection,
     ) -> None:
         
-        """Test handling of connection failure."""
+        """
+        Test handling of connection failure.
+
+        This test ensures that when a connection error occurs:
+        - The `connection` and `channel` attributes remain `None`.
+        - An error message is logged.
+
+        Mocks:
+        - `pika.BlockingConnection`: Simulates a connection failure.
+        - `LoggerModule.logger_initialization`: Mocks the logger to verify logging behavior.
+        """
         
         mock_logger = MagicMock()
         mock_logger_init.return_value = mock_logger  
@@ -71,7 +110,13 @@ class TestRabbitMQController(unittest.TestCase):
         self,
     ) -> None:
         
-        """Test successful message publishing."""
+        """
+        Test successful message publishing.
+
+        This test ensures that:
+        - A message is successfully published to the RabbitMQ queue.
+        - A corresponding log message is generated.
+        """
         
         self.controller.publish("Hello World")
         self.mock_channel.basic_publish.assert_called_once_with (
@@ -89,7 +134,13 @@ class TestRabbitMQController(unittest.TestCase):
         self,
     ) -> None:
         
-        """Test handling of message publishing failure."""
+        """
+        Test handling of message publishing failure.
+
+        This test ensures that if publishing a message fails:
+        - An exception is raised.
+        - An error message is logged.
+        """
         
         self.mock_channel.basic_publish.side_effect = Exception("Publish Error")
         
@@ -102,7 +153,13 @@ class TestRabbitMQController(unittest.TestCase):
         self,
     ) -> None:
         
-        """Test closing the RabbitMQ connection."""
+        """
+        Test closing the RabbitMQ connection.
+
+        This test verifies that:
+        - The `close()` method successfully closes the connection.
+        - A corresponding log message is generated.
+        """
         
         self.controller.connection.is_closed = False
         self.controller.close()
@@ -113,7 +170,13 @@ class TestRabbitMQController(unittest.TestCase):
         self,
     ) -> None:
         
-        """Test closing an already closed connection."""
+        """
+        Test closing an already closed connection.
+
+        This test ensures that:
+        - If the connection is already closed, `close()` does nothing.
+        - No redundant calls to `connection.close()` are made.
+        """
         
         self.controller.connection.is_closed = True
         self.controller.close()

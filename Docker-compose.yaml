@@ -4,7 +4,7 @@ services:
   django:
     build: 
       context: .
-      dockerfile: ./django_service/dockerfile
+      dockerfile: ./django_service/build/Dockerfile.django
     container_name: django_service
     ports:
       - "8000:8000"
@@ -17,7 +17,7 @@ services:
   fastapi:
     build:
       context: .
-      dockerfile: ./fastapi_service/dockerfile
+      dockerfile: ./fastapi_service/build/Dockerfile.fastapi
     container_name: fastapi_service
     ports:
       - "8100:8100"
@@ -33,7 +33,7 @@ services:
   grpc:
     build:
       context: .
-      dockerfile: ./grpc_service/dockerfile
+      dockerfile: ./grpc_service/build/Dockerfile.grpc
     container_name: grpc_service
     ports:
       - "50051:50051"
@@ -88,8 +88,7 @@ services:
     image: docker.elastic.co/logstash/logstash:8.9.0
     container_name: logstash
     volumes:
-      - ./logstash/config:/usr/share/logstash/config
-      - ./logstash/pipeline:/usr/share/logstash/pipeline
+      - ./config/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     ports:
       - "5044:5044"
     depends_on:

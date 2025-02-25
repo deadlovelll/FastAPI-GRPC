@@ -16,7 +16,7 @@ class TestStartupHandler(unittest.IsolatedAsyncioTestCase):
 
     @patch.object(
         DatabasePoolController, 
-        "startup_event", 
+        'startup_event', 
         new_callable=AsyncMock,
     )
     def test_initialization (
@@ -40,7 +40,7 @@ class TestStartupHandler(unittest.IsolatedAsyncioTestCase):
 
     @patch.object (
         DatabasePoolController, 
-        "startup_event", 
+        'startup_event', 
         new_callable=AsyncMock,
     )
     async def test_handle_startup (
@@ -73,7 +73,7 @@ class TestShutdownHandler(unittest.IsolatedAsyncioTestCase):
 
     @patch.object (
         DatabasePoolController, 
-        "shutdown_event", 
+        'shutdown_event', 
         new_callable=AsyncMock,
     )
     def test_initialization (
@@ -97,7 +97,7 @@ class TestShutdownHandler(unittest.IsolatedAsyncioTestCase):
 
     @patch.object (
         DatabasePoolController, 
-        "shutdown_event", 
+        'shutdown_event', 
         new_callable=AsyncMock,
     )
     async def test_handle_shutdown (
@@ -118,5 +118,5 @@ class TestShutdownHandler(unittest.IsolatedAsyncioTestCase):
         mock_shutdown_event.assert_awaited_once()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

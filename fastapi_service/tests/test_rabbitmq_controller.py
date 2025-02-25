@@ -15,7 +15,7 @@ class TestRabbitMQController(unittest.TestCase):
     - The connection can be closed gracefully.
     """
     
-    @patch("pika.BlockingConnection")
+    @patch('pika.BlockingConnection')
     def setUp (
         self, 
         mock_connection,
@@ -41,12 +41,12 @@ class TestRabbitMQController(unittest.TestCase):
         
         with patch.object (
             LoggerModule, 
-            "logger_initialization", 
+            'logger_initialization', 
             return_value=MagicMock(),
         ):
             self.controller = RabbitMQController (
-                host="localhost", 
-                queue_name="test_queue",
+                host='localhost', 
+                queue_name='test_queue',
             )
     
     def test_connect_success (
@@ -61,20 +61,20 @@ class TestRabbitMQController(unittest.TestCase):
         - A log message is generated indicating a successful connection.
         """
         
-        self.mock_channel.queue_declare.assert_called_once_with(queue="test_queue")
+        self.mock_channel.queue_declare.assert_called_once_with(queue='test_queue')
         self.controller.logger.info.assert_called_with (
             'Connected to RabbitMQ on host "%s" and declared queue "%s".', 
-            "localhost", 
-            "test_queue",
+            'localhost', 
+            'test_queue',
         )
     
     @patch (
-        "pika.BlockingConnection", 
-        side_effect=Exception("Connection Error"),
+        'pika.BlockingConnection', 
+        side_effect=Exception('Connection Error'),
     )
     @patch.object (
         LoggerModule, 
-        "logger_initialization",
+        'logger_initialization',
     )  
     def test_connect_failure (
         self, 
@@ -98,8 +98,8 @@ class TestRabbitMQController(unittest.TestCase):
         mock_logger_init.return_value = mock_logger  
 
         controller = RabbitMQController (
-            host="localhost", 
-            queue_name="test_queue",
+            host='localhost', 
+            queue_name='test_queue',
         )
 
         self.assertIsNone(controller.connection)
@@ -118,16 +118,16 @@ class TestRabbitMQController(unittest.TestCase):
         - A corresponding log message is generated.
         """
         
-        self.controller.publish("Hello World")
+        self.controller.publish('Hello World')
         self.mock_channel.basic_publish.assert_called_once_with (
             exchange='', 
-            routing_key="test_queue", 
-            body="Hello World",
+            routing_key='test_queue', 
+            body='Hello World',
         )
         self.controller.logger.info.assert_called_with (
             'Message published to queue "%s": %s', 
-            "test_queue", 
-            "Hello World",
+            'test_queue', 
+            'Hello World',
         )
     
     def test_publish_failure (
@@ -142,10 +142,10 @@ class TestRabbitMQController(unittest.TestCase):
         - An error message is logged.
         """
         
-        self.mock_channel.basic_publish.side_effect = Exception("Publish Error")
+        self.mock_channel.basic_publish.side_effect = Exception('Publish Error')
         
         with self.assertRaises(Exception):
-            self.controller.publish("Hello World")
+            self.controller.publish('Hello World')
         
         self.controller.logger.error.assert_called()
     
@@ -164,7 +164,7 @@ class TestRabbitMQController(unittest.TestCase):
         self.controller.connection.is_closed = False
         self.controller.close()
         self.controller.connection.close.assert_called_once()
-        self.controller.logger.info.assert_called_with("RabbitMQ connection closed.")
+        self.controller.logger.info.assert_called_with('RabbitMQ connection closed.')
     
     def test_close_already_closed (
         self,
@@ -182,5 +182,5 @@ class TestRabbitMQController(unittest.TestCase):
         self.controller.close()
         self.controller.connection.close.assert_not_called()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

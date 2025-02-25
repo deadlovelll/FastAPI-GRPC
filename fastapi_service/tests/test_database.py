@@ -24,7 +24,7 @@ class TestDatabase(unittest.TestCase):
         
         Database.instance = None
 
-    @patch("fastapi_service.modules.database.model.database.pool.SimpleConnectionPool")
+    @patch('fastapi_service.modules.database.model.database.pool.SimpleConnectionPool')
     def test_singleton_instance (
         self, 
         mock_pool,
@@ -40,7 +40,7 @@ class TestDatabase(unittest.TestCase):
         db2 = Database()
         self.assertIs(db1, db2)  
 
-    @patch("fastapi_service.modules.database.model.database.pool.SimpleConnectionPool")
+    @patch('fastapi_service.modules.database.model.database.pool.SimpleConnectionPool')
     def test_connect_initialization (
         self, 
         mock_pool,
@@ -65,7 +65,7 @@ class TestDatabase(unittest.TestCase):
             database='test_task_database',
         )
 
-    @patch("fastapi_service.modules.database.model.database.pool.SimpleConnectionPool")
+    @patch('fastapi_service.modules.database.model.database.pool.SimpleConnectionPool')
     def test_get_connection (
         self, 
         mock_pool,
@@ -92,7 +92,7 @@ class TestDatabase(unittest.TestCase):
         )
         mock_pool.return_value.getconn.assert_called_once()
 
-    @patch("fastapi_service.modules.database.model.database.pool.SimpleConnectionPool")
+    @patch('fastapi_service.modules.database.model.database.pool.SimpleConnectionPool')
     def test_release_connection (
         self, 
         mock_pool,
@@ -111,7 +111,7 @@ class TestDatabase(unittest.TestCase):
         db.release_connection(mock_conn)
         mock_pool.return_value.putconn.assert_called_once_with(mock_conn)
 
-    @patch("fastapi_service.modules.database.model.database.pool.SimpleConnectionPool")
+    @patch('fastapi_service.modules.database.model.database.pool.SimpleConnectionPool')
     def test_close_all (
         self, 
         mock_pool,
@@ -129,5 +129,5 @@ class TestDatabase(unittest.TestCase):
         db.close_all()
         mock_pool.return_value.closeall.assert_called_once()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

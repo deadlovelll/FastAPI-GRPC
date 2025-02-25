@@ -80,11 +80,11 @@ class TestLoggerModule(unittest.TestCase):
         logger_module = LoggerModule()
         formatter = logger_module.logger_initialization().handlers[0].formatter
         record = logging.LogRecord (
-            name="test_logger",
+            name='test_logger',
             level=logging.INFO,
-            pathname="test_path",
+            pathname='test_path',
             lineno=42,
-            msg="Test log message",
+            msg='Test log message',
             args=(),
             exc_info=None,
         )
@@ -92,25 +92,25 @@ class TestLoggerModule(unittest.TestCase):
         log_dict = json.loads(formatted)
 
         self.assertEqual (
-            log_dict["message"], 
-            "Test log message",
+            log_dict['message'], 
+            'Test log message',
         )
         self.assertEqual (
-            log_dict["level"], 
-            "INFO",
+            log_dict['level'], 
+            'INFO',
         )
         self.assertEqual (
-            log_dict["line_number"], 
+            log_dict['line_number'], 
             42,
         )
         self.assertEqual (
-            log_dict["filename"], 
-            "test_path",
+            log_dict['filename'], 
+            'test_path',
         )
         self.assertEqual (
-            log_dict["host"], 
+            log_dict['host'], 
             socket.gethostname(),
         )
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

@@ -1,7 +1,7 @@
 FROM python:3.12-slim
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
@@ -13,10 +13,11 @@ RUN pip install --no-cache-dir --upgrade pip virtualenv
 
 COPY requirements/requirements.txt .
 
-RUN python -m venv venv && ./venv/bin/pip install --no-cache-dir -r requirements.txt
+RUN python3 -m venv venv && ./venv/bin/pip install --no-cache-dir -r requirements.txt
 
-COPY fastapi_service/ .
+ENV PYTHONPATH="/app:${PYTHONPATH}"
 
-EXPOSE 8000
+EXPOSE 8001
 
-CMD ["./venv/bin/uvicorn", "main.main:app", "--host", "0.0.0.0", "--port", "8001"]
+# Adjust CMD if your entry point is in fastapi_service/main/main.py
+CMD ["/app/venv/bin/python3", "main/main.py"]

@@ -12,12 +12,12 @@ RUN pip install --no-cache-dir --upgrade pip virtualenv
 
 COPY requirements/requirements.txt .
 
-RUN python -m venv venv && ./venv/bin/pip install --no-cache-dir -r requirements.txt
+RUN python3 -m venv venv && ./venv/bin/pip install --no-cache-dir -r requirements.txt
 
 COPY django_service/ .
 
-ENV DJANGO_SETTINGS_MODULE=project.settings.settings
+ENV DJANGO_SETTINGS_MODULE=books_project.settings.settings
 
 EXPOSE 8000
 
-CMD ["./venv/bin/python3", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["/app/venv/bin/python3", "manage.py", "runserver", "0.0.0.0:8000"]

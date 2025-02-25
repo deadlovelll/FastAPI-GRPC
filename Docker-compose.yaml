@@ -5,11 +5,11 @@ services:
     build: 
       context: .
       dockerfile: ./django_service/build/Dockerfile.django
+    env_file:
+      - .env
     container_name: django_service
     ports:
       - "8000:8000"
-    volumes:
-      - ./django_service:/app
     depends_on:
       - db
       - rabbitmq  
@@ -18,32 +18,32 @@ services:
     build:
       context: .
       dockerfile: ./fastapi_service/build/Dockerfile.fastapi
+    env_file:
+      - .env
     container_name: fastapi_service
     ports:
       - "8100:8100"
-    volumes:
-      - ./fastapi_service:/app
     depends_on:
-      - grpc
+      # - grpc
       - db
       - elasticsearch  
       - kibana        
       - rabbitmq     
 
-  grpc:
-    build:
-      context: .
-      dockerfile: ./grpc_service/build/Dockerfile.grpc
-    container_name: grpc_service
-    ports:
-      - "50051:50051"
-    volumes:
-      - ./grpc_service:/app
-    depends_on:
-      - db
-      - elasticsearch 
-      - kibana         
-      - rabbitmq       
+  # grpc:
+  #   build:
+  #     context: .
+  #     dockerfile: ./grpc_service/build/Dockerfile.grpc
+  #   env_file:
+  #     - .env
+  #   container_name: grpc_service
+  #   ports:
+  #     - "50051:50051"
+  #   depends_on:
+  #     - db
+  #     - elasticsearch 
+  #     - kibana         
+  #     - rabbitmq       
 
   db:
     image: postgres:14

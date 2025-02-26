@@ -52,6 +52,43 @@ Ensure you have the following installed:
 
 ### 🔧 Running the Application
 
+.env variables
+
+```
+DJANGO_SECRET_KEY = 'django-insecure-d+fti2j8pynu25rzh^dp#erqih-m5m_ftzi6ot8fdy42bg=%*j'
+DJANGO_DEBUG = True
+DJANGO_ALLOWED_HOSTS = *
+
+DATABSE_ENGINE='django.db.backends.postgresql'
+DATABSE_OPTIONS='-c search_path=public'
+DATABSE_NAME='test_task_database'
+DATABSE_USER='test_task'
+DATABSE_PASSWORD='Lovell32bd'
+DATABSE_HOST='localhost'
+DATABSE_PORT='5432'
+
+DB_HOST='localhost'
+DB_USER='test_task'
+DB_PASSWORD='Lovell32bd'
+DB_NAME='test_task_database'
+DB_PORT=5432
+
+LOGGER_HOST='localhost'
+LOGGER_PORT=5959
+LOGGER_VERSION=1
+
+RABBITMQ_HOST='localhost'
+RABBITMQ_QUEUE_NAME='book_queue'
+
+FASTAPI_HOST='127.0.0.1'
+FASTAPI_PORT='8100'
+
+JWT_VALIDATION_URL='http://localhost:8000/api/validate-token/'
+
+GRPC_SERVER_PORT=50051
+GRPC_MAX_WORKERS=10
+```
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/deadlovelll/FastAPI-GRPC.git

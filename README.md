@@ -1,70 +1,83 @@
-# Project Title
+# FastAPI-GRPC Microservices Architecture
 
 ## Overview
 
-This project is a microservices architecture that includes Django, FastAPI, gRPC, PostgreSQL, RabbitMQ, and ELK stack for logging and monitoring. The services communicate with each other and provide a robust environment for building scalable applications.
+This project is a microservices-based architecture that integrates multiple technologies, including Django, FastAPI, gRPC, PostgreSQL, RabbitMQ, and the ELK stack. It is designed for scalability, efficient inter-service communication, and robust monitoring.
 
 ## Services
 
-### Django Service
-
-- **Description**: This service handles user authentication and the main application logic.
-- **Port**: 8000
+### 🛠 Django Service
+- **Description**: Handles user authentication and core application logic.
+- **Port**: `8000`
 - **Dockerfile**: `./django_service/Dockerfile`
 
-### FastAPI Service
-
-- **Description**: This service provides a lightweight API for handling book-related operations.
-- **Port**: 8100
+### ⚡ FastAPI Service
+- **Description**: Provides a lightweight API for book-related operations.
+- **Port**: `8100`
 - **Dockerfile**: `./fastapi_service/Dockerfile`
 
-### gRPC Service
-
-- **Description**: This service provides a gRPC interface for efficient communication between microservices.
-- **Port**: 50051
+### 🔗 gRPC Service
+- **Description**: Offers a gRPC interface for efficient microservice communication.
+- **Port**: `50051`
 - **Dockerfile**: `./grpc_service/Dockerfile`
 
-### PostgreSQL Database
-
-- **Description**: The relational database used for storing application data.
-- **Port**: 5432
+### 🗄️ PostgreSQL Database
+- **Description**: Relational database for storing application data.
+- **Port**: `5432`
 - **Environment Variables**:
-  - `POSTGRES_DB`: test_task_database
-  - `POSTGRES_USER`: test_task
-  - `POSTGRES_PASSWORD`: Lovell32bd
+  ```env
+  POSTGRES_DB=test_task_database
+  POSTGRES_USER=test_task
+  POSTGRES_PASSWORD=Lovell32bd
+  ```
 
-### RabbitMQ
+### 📩 RabbitMQ
+- **Description**: Message broker for asynchronous communication between services.
+- **Port**: `5672` (default)
+- **Management UI**: `http://localhost:15672`
 
-- **Description**: Message broker for handling asynchronous communication between services.
-- **Port**: 5672 (default)
+### 📊 ELK Stack (Logging & Monitoring)
+- **Components**:
+  - **Elasticsearch** (stores logs)
+  - **Logstash** (processes and forwards logs)
+  - **Kibana** (visualizes logs)
+- **Kibana UI**: `http://localhost:5601`
 
-### ELK Stack
-
-- **Description**: Stack for logging and monitoring application events.
-- **Components**: Elasticsearch, Logstash, Kibana
-
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
+Ensure you have the following installed:
+- [Docker](https://www.docker.com/)
+- [Docker Compose](https://docs.docker.com/compose/)
 
-- Docker
-- Docker Compose
-
-### Running the Application
+### 🔧 Running the Application
 
 1. Clone the repository:
    ```bash
-   git clone <your-repo-url>
-   cd <your-project-directory>
+   git clone https://github.com/deadlovelll/FastAPI-GRPC.git
+   cd FastAPI-GRPC
+   ```
 
 2. Start the services:
-
-  docker-compose up --build
+   ```bash
+   docker-compose up --build
+   ```
 
 3. Access the services:
+   - **Django**: [http://localhost:8000](http://localhost:8000)
+   - **FastAPI**: [http://localhost:8100](http://localhost:8100)
+   - **RabbitMQ**: [http://localhost:15672](http://localhost:15672)
+   - **Kibana**: [http://localhost:5601](http://localhost:5601)
 
-Django: http://localhost:8000
-FastAPI: http://localhost:8100
-RabbitMQ: http://localhost:15672 (default user: guest, password: guest)
-Kibana: http://localhost:5601
+4. Run the tests and get the current coverage
+    ```bash
+    bash sh_scripts/run_tests.sh
+    ```
 
+## 📜 License
+This project is licensed under the MIT License.
+
+---
+
+### 📬 Questions?
+Feel free to open an issue or reach out via GitHub!

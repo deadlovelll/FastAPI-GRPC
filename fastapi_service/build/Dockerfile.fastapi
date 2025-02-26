@@ -19,5 +19,4 @@ ENV PYTHONPATH="/app:${PYTHONPATH}"
 
 EXPOSE 8001
 
-# Adjust CMD if your entry point is in fastapi_service/main/main.py
 CMD ["/app/venv/bin/python3", "main/main.py"]

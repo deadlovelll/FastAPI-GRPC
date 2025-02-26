@@ -1,8 +1,8 @@
-version: 'latest'
+version: '3.9'
 
 services:
   django:
-    build: 
+    build:
       context: .
       dockerfile: ./django_service/build/Dockerfile.django
     env_file:
@@ -12,7 +12,10 @@ services:
       - "8000:8000"
     depends_on:
       - db
-      - rabbitmq  
+      - rabbitmq
+    restart: unless-stopped
+    networks:
+      - backend
 
   fastapi:
     build:
@@ -24,26 +27,32 @@ services:
     ports:
       - "8100:8100"
     depends_on:
-      # - grpc
+      - grpc
       - db
-      - elasticsearch  
-      - kibana        
-      - rabbitmq     
+      - elasticsearch
+      - kibana
+      - rabbitmq
+    restart: unless-stopped
+    networks:
+      - backend
 
-  # grpc:
-  #   build:
-  #     context: .
-  #     dockerfile: ./grpc_service/build/Dockerfile.grpc
-  #   env_file:
-  #     - .env
-  #   container_name: grpc_service
-  #   ports:
-  #     - "50051:50051"
-  #   depends_on:
-  #     - db
-  #     - elasticsearch 
-  #     - kibana         
-  #     - rabbitmq       
+  grpc:
+    build:
+      context: .
+      dockerfile: ./grpc_service/build/Dockerfile.grpc
+    env_file:
+      - .env
+    container_name: grpc_service
+    ports:
+      - "50051:50051"
+    depends_on:
+      - db
+      - elasticsearch
+      - kibana
+      - rabbitmq
+    restart: unless-stopped
+    networks:
+      - backend
 
   db:
     image: postgres:14
@@ -56,19 +65,24 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - backend
 
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "5672:5672"  
-      - "15672:15672"  
+      - "5672:5672"
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: user
       RABBITMQ_DEFAULT_PASS: password
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    restart: unless-stopped
     networks:
+      - backend
       - elk
 
   elasticsearch:
@@ -81,7 +95,9 @@ services:
       - es_data:/usr/share/elasticsearch/data
     ports:
       - "9200:9200"
+    restart: unless-stopped
     networks:
+      - backend
       - elk
 
   logstash:
@@ -93,7 +109,9 @@ services:
       - "5044:5044"
     depends_on:
       - elasticsearch
+    restart: unless-stopped
     networks:
+      - backend
       - elk
 
   kibana:
@@ -105,7 +123,9 @@ services:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     depends_on:
       - elasticsearch
+    restart: unless-stopped
     networks:
+      - backend
       - elk
 
 volumes:
@@ -114,6 +134,7 @@ volumes:
   rabbitmq_data:
 
 networks:
+  backend:
+    driver: bridge
   elk:
     driver: bridge
-
